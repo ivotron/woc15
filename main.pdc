@@ -1,0 +1,87 @@
+---
+title: "Containers and Reproducible Systems Research"
+author:
+  - name: "Ivo Jimenez"
+    affiliation: "UC Santa Cruz"
+    email: "ivo@cs.ucsc.edu"
+  - name: "Carlos Maltzahn"
+    affiliation: "UC Santa Cruz"
+    email: "carlosm@ucsc.edu"
+abstract: |
+  Reproducibility is needed. Containers help but we need more
+tags:
+  - phdthesis
+  - workshop
+  - workshop-paper
+  - woc15
+category: labnotebook
+layout: paper
+documentclass: acm-sig-alternate
+disable-copyright: true
+---
+
+# Introduction
+
+Explain and exemplify the need for reproducibility in Systems 
+Research. We refer the study from the university of arizona and 
+explain how we differ/extend that work [@collberg_measuring_2014].
+
+# Challenges
+
+  * Evolving hardware
+  * Lack of documentation
+
+# Use Case
+
+The Ceph OSDI '06 paper. From the table below, we show 5 and 9
+
+```
+| Setup | HW | VM | Kernel | Code | Time | Outcome |
+|:-----:|:--:|:--:|:------:|:----:|:----:|:-------:|
+|  01   |old | on |  new   | new  |      |         |
+|  02   |old | on |  new   | old  |      |         |
+|  03   |old | on |  old   | new  |      |         |
+|  04   |old | on |  old   | old  |      |         |
+|  05   |old | off|  new   | new  |  90  |   RP    |
+|  06   |old | off|  new   | old  |      |         |
+|  07   |old | off|  old   | old  |      |         |
+|  08   |old | off|  old   | new  |      |         |
+|  09   |new | on |  new   | new  |      |         |
+|  10   |new | on |  new   | old  |      |         |
+|  11   |new | on |  old   | old  |      |         |
+|  12   |new | on |  old   | new  |      |         |
+|  13   |new | off|  new   | new  |      |         |
+|  14   |new | off|  new   | old  |      |         |
+|  15   |new | off|  old   | old  |      |         |
+|  16   |new | off|  old   | new  |      |         |
+```
+
+The `Outcome` column corresponds to the outcome of the experiment. 
+Possible values are:
+
+  * _RT_. Repeated the experiments with exactly the same numbers.
+  * _RP_. Reproduced experiments by validating the original results, 
+    in the sense that the same conclusion about the original work can 
+    be made. In other words, the experiment is validated
+  * NB. Unable to build
+
+The time column corresponds to the time it took to achieve
+
+# Lessons Learned So Far
+
+  1. Version control everything and use git subtrees or submodules to 
+     keep track of inter-dependencies between projects. For example, 
+     if a repository contains the definition of a container, make it a 
+     submodule of the main project.
+  2. Obtain a profile of the hardware used (eg. using [SoSReport])
+
+# Future Work
+
+  * Complete the configurations on the table
+  * Take papers from other related sub-disciplines:
+      * Kernel development
+      * Network
+
+# References
+
+[SoSReport]: https://github.com/sosreport/sos
