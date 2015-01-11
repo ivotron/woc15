@@ -1,5 +1,5 @@
 ---
-title: "Containers and Reproducible Systems Research"
+title: "Container Technology and Its Role in Reproducible Storage Systems Research"
 author:
   - name: "Ivo Jimenez"
     affiliation: "UC Santa Cruz"
@@ -7,8 +7,17 @@ author:
   - name: "Carlos Maltzahn"
     affiliation: "UC Santa Cruz"
     email: "carlosm@ucsc.edu"
+  - name: "Jay Lofstead"
+    affiliation: "Sandia National Laboratories"
+    email: "gflofst@sandia.gov"
+  - name: "Adam Moody"
+    affiliation: "Lawrence Livermore National Laboratories"
+    email: "moody11@llnl.gov"
+  - name: "Kathryn Mohror"
+    affiliation: "Lawrence Livermore National Laboratories"
+    email: "kathryn@llnl.gov"
 abstract: |
-  Reproducibility is needed. Containers help but we need more
+  **TODO**
 tags:
   - phdthesis
   - workshop
@@ -16,28 +25,128 @@ tags:
   - woc15
 category: labnotebook
 layout: paper
+numbersections: true
 documentclass: acm-sig-alternate
+substitute-hyperref: true
+hanged-biblio: true
 disable-copyright: true
 ---
 
 # Introduction
 
-Explain and exemplify the need for reproducibility in Systems 
-Research. We refer the study from the university of arizona and 
-explain how we differ/extend that work [@collberg_measuring_2014].
+---------
 
-# Challenges
+**TODO**:
 
-  * Evolving hardware
-  * Lack of documentation
+  * Define what we mean by Systems Research and Storage Systems 
+    Research in particular
+  * Define what we mean by Reproducibility in Storage Systems Research
+  * Explain and exemplify the need for reproducibility in Systems 
+    Research in general (refer the study from the university of 
+    arizona [@collberg_measuring_2014]), and Storage Systems Research 
+    in particular
+  * The above lays the ground for what follows
 
-# Use Case
+---------
 
-The Ceph OSDI '06 paper. From the table below, we show 5 and 9
+Lack of reproducibility in Storage Systems Research stems from:
+
+  1. Evolving hardware
+  2. Uncontrolled changes in software
+  3. Lack of association between a paper's experiment and its 
+     corresponding codebase.
+
+1 is an inherent consequence of how technology advances and is usually 
+taken as given, i.e. one expects to see different results of an old 
+experiment if it runs on newer hardware. Version control systems (VCS) 
+and continuous integration (CI) tools are sometimes used to tackle 2 
+and 3. Additionally, virtualization technologies offer an alternative 
+solution for both 2 and 3 [^assumption].
+
+[^assumption]: Assuming that they get developed in them (e.g. a 
+researcher codifies the experiments in a VM) or the experiment is 
+ported after a paper has been accepted.
+
+## Contributions
+
+In order for container technologies to be a viable solution to the 
+reproducibility problem in storage systems research, we need to 
+address the following:
+
+  1. What characteristics does an experiment must observe in order to 
+     not be affected by the overhead associated to container 
+     [technologies](#characteristics)?
+  2. How can an experiment be reproduced in infrastructure that 
+     differs from where it was originally [executed](#mapping)?
+
+# Experiments Suitable for Containers {#characteristics}
+
+Based on previous performance evaluations of container technology 
+[@xavier_performance_2013 ; @felter_updated_2014 ; 
+@xavier_performance_2014 ; @tang_performance_2014] we can extrapolate 
+the following conditions for which experimental results will likely be 
+affected by the implementation of the underlying OS-level 
+virtualization:
+
+  * Memory bandwidth is of significant importance (i.e. if 5% of 
+    performance will affect results).
+  * External storage drives can't be used, thus having the experiment 
+    perform I/O operations within the filesystem namespace where the 
+    container is located.
+  * Network address translation (NAT) is required.
+  * More than one container needs to be co-located in the same 
+    physical host
+
+Any experiment for which any of the above applies should be carefully 
+examined since the effects of containerization can affect the results. 
+The design of the experiment should explicitly account for these 
+effects.
+
+----------
+
+**TODO**: do we need to execute experiments of our own?
+
+----------
+
+# Evaluation on Different Hardware {#mapping}
+
+For experiments suitable to be containerized, we define a mapping 
+methodology that allows to evaluate experimental results on hardware 
+distinct than the original:
+
+  1. Obtain the profile of the original hardware
+  2. Obtain the configuration of each container (e.g. User Beacons or 
+     cgroup configuration)
+  3. Obtain the profile of the new hardware
+  4. Generate a configuration for the new hardware based on 2-4
+
+----------
+
+**TODO**: use ceph use case (below) or pick another one like [fio]. In 
+general, we show that our mapping methodology works.
+
+----------
+
+## Use Case
+
+We look at the Ceph OSDI '06 paper as an example of the difficulties 
+in trying to reproduce Systems Research.
+
+\ 
+
+**TODO**: should we have this section? Should it appear before the 
+_Challenges_ section? Also, we should determine if we want to include 
+the table; explain what we look at so that we can talk about the 
+table.
+
+\ 
+
+We then present the table and explain that so far we have looked at 
+show 5 and 9.
 
 ```
 | Setup | HW | VM | Kernel | Code | Time | Outcome |
-|:-----:|:--:|:--:|:------:|:----:|:----:|:-------:|
+|:-----:|:--:|:--:|:------:|:----:|:----:|:------:|
 |  01   |old | on |  new   | new  |      |         |
 |  02   |old | on |  new   | old  |      |         |
 |  03   |old | on |  old   | new  |      |         |
@@ -65,7 +174,8 @@ Possible values are:
     be made. In other words, the experiment is validated
   * NB. Unable to build
 
-The time column corresponds to the time it took to achieve
+The time column corresponds to the time it took to achieve the 
+reproducibility level specified.
 
 # Lessons Learned So Far
 
@@ -73,15 +183,47 @@ The time column corresponds to the time it took to achieve
      keep track of inter-dependencies between projects. For example, 
      if a repository contains the definition of a container, make it a 
      submodule of the main project.
-  2. Obtain a profile of the hardware used (eg. using [SoSReport])
+  2. Obtain a profile of the hardware used (eg. making use of tools 
+     such as SoSReport[^sosreport]) and publish it as part of the 
+     experimental results.
+  3. Keep a container image for every runnable version of the 
+     experiment codebase.
+  4. Whenever possible, use CI technologies to ensure that changes to 
+     the experiment's codebase don't disrupt its reproducibility (as 
+     defined in the introduction).
+
+# Related Work
+
+  * Recent efforts such as _The Recomputation Manifesto_ [^recomp] 
+    leave runtime performance as a secondary problem. For most of the 
+    work in Systems Research, runtime performance _is_ the subject of 
+    research thus we need to look at it as a primary issue.
+
+  * How we differ/extend the work in [@collberg_measuring_2014]? 
+    **Answer**: we are interested not only in being able to rebuild 
+    binaries but also evaluate the validity of the results.
+
+  * Existing tools such as Reprozip [@ ] try to package an experiment 
+    in a container without having to implement it in one (i.e. 
+    automates the creation of a container from an "uncontainerized" 
+    environment). Our work is complementary in the sense that we look 
+    at the conditions in which the experiment can be validated in 
+    order tu ensure that the containerized version will (or won't) 
+    produce valid results.
+
+[^recomp]: www.recomputation.org/manifesto/
 
 # Future Work
 
-  * Complete the configurations on the table
-  * Take papers from other related sub-disciplines:
-      * Kernel development
-      * Network
+Take papers from other sub-disciplines of Systems Research:
+
+  * Kernel
+  * Network
+  * Hardware
+
+How can we repeat the effort presented in this paper for the above?
 
 # References
 
-[SoSReport]: https://github.com/sosreport/sos
+[^sosreport]: https://github.com/sosreport/sos
+[fio]: https://github.com/axboe/fio/
