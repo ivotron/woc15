@@ -1,3 +1,6 @@
 [submodule "bibfile"]
 	path = bibfile
 	url = git@github.com:ivotron/bibfile.git
+[submodule "bibtools"]
+	path = bibtools
+	url = git@github.com:ivotron/bibtools.git
