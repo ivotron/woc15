@@ -7,3 +7,6 @@
 [submodule "latex-files"]
 	path = latex-files
 	url = git@github.com:ivotron/latex-files.git
+[submodule "pandoc-templates"]
+	path = pandoc-templates
+	url = git@github.com:ivotron/pandoc-templates.git
