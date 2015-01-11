@@ -4,3 +4,6 @@
 [submodule "bibtools"]
 	path = bibtools
 	url = git@github.com:ivotron/bibtools.git
+[submodule "latex-files"]
+	path = latex-files
+	url = git@github.com:ivotron/latex-files.git
