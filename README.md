@@ -1,7 +1,8 @@
 Workshop on Containers (WoC) 2015 submission.
 
-Depends:
+Depends on Docker 1.20+. To generate the PDF file:
 
-  * pandoc 1.13.2 (homebrew bottled version)
-  * pandoc-citeproc 0.6 (homebrew bottled version)
-  * mactex 20140525
+```bash
+git submodule update --recursive --init
+./mk
+```
