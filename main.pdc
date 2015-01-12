@@ -28,7 +28,6 @@ layout: paper
 numbersections: true
 documentclass: acm-sig-alternate
 substitute-hyperref: true
-hanged-biblio: true
 disable-copyright: true
 ---
 
@@ -146,7 +145,7 @@ show 5 and 9.
 
 ```
 | Setup | HW | VM | Kernel | Code | Time | Outcome |
-|:-----:|:--:|:--:|:------:|:----:|:----:|:------:|
+|:-----:|:--:|:--:|:-----:|:----:|:----:|:------:|
 |  01   |old | on |  new   | new  |      |         |
 |  02   |old | on |  new   | old  |      |         |
 |  03   |old | on |  old   | new  |      |         |
@@ -227,3 +226,11 @@ How can we repeat the effort presented in this paper for the above?
 
 [^sosreport]: https://github.com/sosreport/sos
 [fio]: https://github.com/axboe/fio/
+
+<!-- hanged biblio-->
+
+\noindent
+\vspace{-2em}
+\setlength{\parindent}{-0.2in}
+\setlength{\leftskip}{0.2in}
+\setlength{\parskip}{8pt}
