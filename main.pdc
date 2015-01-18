@@ -1,8 +1,5 @@
 ---
-title: "Container Technology and Its Role in Reproducible Storage Systems Research"
-
-The Role of Container in Reproducible Systems Evaluation
-
+title: "The Role of Container Technology in Reproducible Computer Systems Research"
 author:
   - name: "Ivo Jimenez"
     affiliation: "UC Santa Cruz"
@@ -21,12 +18,19 @@ author:
     email: "gflofst@sandia.gov"
   - name: "Remzi Arpaci-Dusseau"
     affiliation: "University of Wisconsin-Madison"
-    email: "gflofst@sandia.gov"
+    email: "remzi@cs.wisc.edu"
 abstract: |
-  Container technology promises to be of good use for solving 
-  reproducibility challenges in computer science. For the particular 
-  case of Storage Systems research, there is a set of features that 
-  containers lack
+  Evaluating experimental results in the field of Computer Systems is 
+  a challenging task, mainly due to the many changes in software and 
+  hardware that computational environments go through. In this 
+  position paper we analyze salient features of container technology 
+  that, if leveraged correctly, can help in reducing the complexity of 
+  reproducing experiments in systems research. We present a use case 
+  in the area of Storage Systems to illustrate the extensions that are 
+  required, mainly in terms of container management infrastructure. We 
+  also discuss the benefits and limitations of using containers as a 
+  way of reproducing research in other areas of experimental systems 
+  research.
 tags:
   - phdthesis
   - workshop-paper
@@ -39,24 +43,6 @@ substitute-hyperref: true
 disable-copyright: true
 ---
 
-This is not for the paper:
-
---------
-
-over time disk have aged and performance profile is different. In 
-order to get uniform performance, we had to throttle (because old 
-sectors, etc..). In order to amortize, we had to take the lowest 
-common denominator. This allowed us to reproduce without on old 
-hardware. This works on the new 
-
-In order to reproduce, we have to mess with them in some.
-
---------
-
-overleaf
-
-<carlosm@ucsc.edu>
-
 # Introduction
 
 A key component of the scientific method is the ability to revisit and 
@@ -67,15 +53,17 @@ examining the steps that led to a result, scientists can gain insights
 into the chain of reasoning used in its production, verify that the 
 experiment was performed according to acceptable procedures, identify 
 the experiment's inputs, and, in some cases, regenerate the original 
-result. Additionally, reproducibility plays a major roll in education 
-since the amount of information that a student has to digest increases 
-as the pace of scientific discovery accelerates. By having repeatable 
-experiments, a student can learn by looking at provenance information, 
-re-evaluate the questions that the original experiment answered and 
-thus "stand in the shoulder of giants".
+result [@freire_provenance_2008]. Additionally, reproducibility plays 
+a major roll in education since the amount of information that a 
+student has to digest increases as the pace of scientific discovery 
+accelerates. By having repeatable experiments, a student can learn by 
+looking at provenance information, re-evaluate the questions that the 
+original experiment answered and thus "stand in the shoulder of 
+giants".
 
 In applied Computer Science an experiment is carried out in its 
-entirety by a computer. Although the scientist is interactively 
+entirety by a computer [@freire_computational_2012 ; 
+@donoho_reproducible_2009]. Although the scientist is interactively 
 defining the sequence of steps that get executed, ultimately binary 
 programs run on a machine. Repeating a result doesn't require a 
 scientist to rewrite a program, rather it entails obtaining the 
@@ -86,31 +74,60 @@ computational abilities to collect and manage data we should be able
 to record and reconstruct environments for particular results 
 perfectly. However, this is not the case, mainly due to three factors:
 
-  1. Lack of association between an experiment and its codebase.
+  1. Association between experiment and its codebase.
   2. Evolving software.
   3. Changes in hardware.
 
 Version control systems (VCS) are sometimes used to tackle 1 and 2. By 
 having a particular version ID for the software used for an article's 
-experimental results, reviewers and readers can access to the same 
-codebase [@brown_how_2014]. However, access to source code is not a 
-guarantee for reproducing an experiment [@collberg_measuring_2014] 
-since it might not be possible to compile it and, even if compilable, 
-the results might differ, in which case the new computational 
-environment has to be evaluated in order to corroborate the validity 
-of the original experiment.
+experimental results, reviewers and readers can have access to the 
+same codebase [@brown_how_2014]. However, availability of the source 
+code does not guarantee reproducibility [@collberg_measuring_2014] 
+since the code might not compile and, even if compilable, the results 
+might differ, in which case the differences have to be analyzed in 
+order to corroborate the validity of the original experiment.
 
 Reproducing experimental results when the underlying hardware 
-environment changes is challenging because the effect of such changes 
-in the outcome of an experiment cannot be predicted accurately. A 
-Virtual Machine (VM) can be used to partially address this issue but 
-the overheads of creating, storing and transferring the derived images 
-can be high, which in some fields of computer science cannot be 
-neglected [@clark_xen_2004]. Container technology 
-[@soltesz_container-based_2007] can be
+environment changes (3) is challenging mainly due to the inability of 
+predicting the effects of such changes in the outcome of an 
+experiment. A Virtual Machine (VM) can be used to partially address 
+this issue but the overheads associated in terms of performance (the 
+hypervisor's "tax") and management (creating, storing and transferring 
+them) can be high and, in some fields of Computer Science such as 
+Computer Systems research, cannot be accounted easily 
+[@clark_xen_2004].
 
-In order to reduce the problem space, we focus in Systems Research in 
-general and Storage in particular.
+Container technology [@soltesz_container-based_2007] is currently 
+employed as a way of reducing the complexity of software deployment in 
+cloud computing infrastructure and has taken the role that package 
+management tools had in the past, where they were used to control 
+upgrades and keep track of change in the dependencies of an 
+application [@dicosmo_package_2008]. In this work, we make the case 
+for containers as a way of tackling some of the reproducibility 
+problems in Computer Systems research. In order to reduce the problem 
+space, we focus to local and distributed storage systems in various 
+forms (e.g., local file systems, distributed file systems, key-value 
+stores, and related data-storage engines) since this is one of the 
+most important areas underlying cloud computing and big-data 
+processing, as well as our area of expertise.
+
+We first describe the salient features of container technology that 
+are relevant in the evaluation of experiments. We then describe what 
+in our view is missing in order to make containers a useful 
+reproducibility tool for storage systems research. We then present a 
+use case that illustrates the container management extensions that we 
+envision that would allow to record metadata about the execution of 
+experiments. We then describe how this metadata can be used to 
+evaluate an experiment and, at the same time, create a catalog that 
+researches can use when looking for particular types of experiments. 
+We then discuss the benefits and limitations of using containers as a 
+way of reproducing research in other areas of experimental systems 
+research. We conclude and delineate future work.
+
+# Containers for
+
+Containers offer a set of features that, In order for containers to be 
+considered an alternative.
 
 --------------
 
