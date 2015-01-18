@@ -13,3 +13,6 @@
 [submodule "docker-pandoc"]
 	path = docker-pandoc
 	url = git@github.com:ivotron/docker-pandoc.git
+[submodule "overleaf"]
+	path = overleaf
+	url = https://git.overleaf.com/2118302wbyxfr
