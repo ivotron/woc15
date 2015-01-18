@@ -23,11 +23,11 @@ abstract: |
   Evaluating experimental results in the field of Computer Systems is 
   a challenging task, mainly due to the many changes in software and 
   hardware that computational environments go through. In this 
-  position paper we analyze salient features of container technology 
-  that, if leveraged correctly, can help in reducing the complexity of 
+  position paper, we analyze salient features of container technology 
+  that, if leveraged correctly, can help reducing the complexity of 
   reproducing experiments in systems research. We present a use case 
-  in the area of Storage Systems to illustrate the extensions that are 
-  required, mainly in terms of container management infrastructure. We 
+  in the area of storage systems to illustrate the extensions that we 
+  envision, mainly in terms of container management infrastructure. We 
   also discuss the benefits and limitations of using containers as a 
   way of reproducing research in other areas of experimental systems 
   research.
@@ -124,62 +124,76 @@ We then discuss the benefits and limitations of using containers as a
 way of reproducing research in other areas of experimental systems 
 research. We conclude and delineate future work.
 
-# Containers for
+# Experimental Evaluation in Computer Systems Research
 
-Containers offer a set of features that, In order for containers to be 
-considered an alternative.
+An experiment in systems research is usually composed by a triplet of 
+\(1\) workload, (2) a specific system where the workload runs and 
+\(3\) associated results to a particular execution. Respective to this 
+order is the complexity associated to the evaluation of an experiment: 
+obtaining the exact same results is more difficult than getting access 
+to the original workload.
 
---------------
+**TODO: extend the above in order to define reproducibility levels**
 
-  * Helps reproducing functionality in a particular environment.
-  * Docker is package management
-  * Containers have been very useful for this
+\ 
 
+**TODO: also, talk about how container features help with each level 
+of reproducibility: metrics, deployment, automation**
 
-  * When we want to reproduce an experiment.
+# Containers For Reproducible Research
 
-Define Experiment: a particular workload, on particular system with 
-particular results
+For experiments suitable to be containerized, we define a mapping 
+methodology that allows to evaluate experimental results on hardware 
+distinct than the original:
 
-  * A workload on a tested system and
-  * System
-  * Results
-
-So we have to talk about what's missing in terms of container 
-management.
-
-  * we want to extend what a container has, in terms of statistics
-
-
------------
-
-today reproducibility is focusing on deployment
-
-we need workloads, platforms => particular resource allocations
+  1. Obtain the profile of the original hardware
+  2. Obtain the configuration of each container (e.g. User Beacons or 
+     cgroup configuration)
+  3. Obtain the profile of the new hardware
+  4. Generate a configuration for the new hardware based on 2-4
 
 
-containers have the potential of cover all of these:
+# Use Case: Reproducing Results on Different Storage Devices
 
+We compare:
 
-but we need more
+  * An old hard drive
+  * The equivalent (modern) model of an old hard drive
+  * An SSD
 
+We will show that:
 
---------------
+  * Direct I/O is reproducible
+  * Asynchronous I/O is not
+  * Therefore we need to extend containers to handle async requests on 
+    a per-container basis (not on a global)
 
+This case will also illustrate how having the HW profile and base 
+configuration of containers can help in:
 
-## Contributions
+  * mapping to new hardware
+  * mapping to old-but-aged hardware
 
-In order for container technologies to be a viable solution to the 
-reproducibility problem in storage systems research, we need to 
-address the following:
+# Discussion
 
-  1. What characteristics does an experiment must observe in order to 
-     not be affected by the overhead associated to containers 
-     [technologies](#characteristics)?
-  2. How can an experiment be reproduced in infrastructure that 
-     differs from where it was originally [executed](#mapping)?
+We discuss benefits and limitations of containers, as well as general 
+guidelines.
 
-# Experiments Suitable for Containers {#characteristics}
+## Cataloging Experiments
+
+We can characterize experiments by creating categories of container 
+metric profiles, e.g.:
+
+  * In-memory only
+  * Storage intensive
+  * Network intensive
+  * CPU intensive
+  * xx% of caching effects
+
+We need to profile an experiment, store the profile along with the 
+image of the container, categorize the profile and index it.
+
+## Can All Systems Research Be Containerized?
 
 Based on previous performance evaluations of container technology 
 [@xavier_performance_2013 ; @felter_updated_2014 ; 
@@ -203,95 +217,25 @@ examined since the effects of containerization can affect the results.
 The design of the experiment should explicitly account for these 
 effects.
 
-----------
-
-**TODO**: do we need to execute experiments of our own?
-
-----------
-
-# Evaluation on Different Hardware {#mapping}
-
-For experiments suitable to be containerized, we define a mapping 
-methodology that allows to evaluate experimental results on hardware 
-distinct than the original:
-
-  1. Obtain the profile of the original hardware
-  2. Obtain the configuration of each container (e.g. User Beacons or 
-     cgroup configuration)
-  3. Obtain the profile of the new hardware
-  4. Generate a configuration for the new hardware based on 2-4
-
-----------
-
-**TODO**: use ceph use case (below) or pick another one like [fio]. In 
-general, we show that our mapping methodology works.
-
-----------
-
-## Use Case
-
-We look at the Ceph OSDI '06 paper as an example of the difficulties 
-in trying to reproduce Systems Research.
-
-\ 
-
-**TODO**: should we have this section? Should it appear before the 
-_Challenges_ section? Also, we should determine if we want to include 
-the table; explain what we look at so that we can talk about the 
-table.
-
-\ 
-
-We then present the table and explain that so far we have looked at 
-show 5 and 13.
-
-```
-| Setup | HW | VM | Kernel | Code | Time | Outcome |
-|:-----:|:--:|:--:|:-----:|:----:|:----:|:------:|
-|  01   |old | on |  new   | new  |      |         |
-|  02   |old | on |  new   | old  |      |         |
-|  03   |old | on |  old   | new  |      |         |
-|  04   |old | on |  old   | old  |      |         |
-|  05   |old | off|  new   | new  |  90  |   RP    |
-|  06   |old | off|  new   | old  |      |         |
-|  07   |old | off|  old   | old  |      |         |
-|  08   |old | off|  old   | new  |      |         |
-|  09   |new | on |  new   | new  |      |         |
-|  10   |new | on |  new   | old  |      |         |
-|  11   |new | on |  old   | old  |      |         |
-|  12   |new | on |  old   | new  |      |         |
-|  13   |new | off|  new   | new  |      |         |
-|  14   |new | off|  new   | old  |      |         |
-|  15   |new | off|  old   | old  |      |         |
-|  16   |new | off|  old   | new  |      |         |
-```
-
-The `Outcome` column corresponds to the outcome of the experiment. 
-Possible values are:
-
-  * _RT_. Repeated the experiments with exactly the same numbers.
-  * _RP_. Reproduced experiments by validating the original results, 
-    in the sense that the same conclusion about the original work can 
-    be made. In other words, the experiment is validated
-  * NB. Unable to build
-
-The time column corresponds to the time it took to achieve the 
-reproducibility level specified.
-
-# Lessons Learned So Far
+## Other Lessons Learned So Far
 
   1. Version control everything and use git subtrees or submodules to 
      keep track of inter-dependencies between projects. For example, 
      if a repository contains the definition of a container, make it a 
      submodule of the main project.
-  2. Obtain a profile of the hardware used (eg. making use of tools 
-     such as SoSReport[^sosreport]) and publish it as part of the 
-     experimental results.
+  2. Refer to the specific version ID that a paper's results were 
+     obtained from. Git's tagging feature can also be used to point to 
+     the version that contains the codebase for an experiment (e.g. 
+     "sosp15")
   3. Keep a container image for every runnable version of the 
-     experiment codebase.
+     experiment codebase (e.g. use docker's automated build feature).
   4. Whenever possible, use CI technologies to ensure that changes to 
-     the experiment's codebase don't disrupt its reproducibility (as 
-     defined in the introduction).
+     the codebase don't disrupt the reproducibility of the experiment.
+  5. Even without something like T-RECS, it is useful to obtain a 
+     profile of the hardware used (eg. making use of tools such as 
+     SoSReport[^sosreport]), as well as the cgroups configuration and 
+     publish these as part of the experimental results (i.e. add it to 
+     the commit that a paper's results are based on).
 
 # Related Work
 
@@ -312,9 +256,7 @@ reproducibility level specified.
     order tu ensure that the containerized version will (or won't) 
     produce valid results.
 
-[^recomp]: www.recomputation.org/manifesto/
-
-# Future Work
+# Conclusion and Future Work
 
 Take papers from other sub-disciplines of Systems Research:
 
@@ -326,7 +268,9 @@ How can we repeat the effort presented in this paper for the above?
 
 # References
 
-[^sosreport]: https://github.com/sosreport/sos
+[^sosreport]: <https://www.github.com/sosreport/sos>
+
+[^recomp]: <http://www.recomputation.org/manifesto/>
 
 [fio]: https://github.com/axboe/fio/
 
