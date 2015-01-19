@@ -1,4 +1,5 @@
 docker run \
+  --rm \
   -v `pwd`/pandoc-templates:/root/.pandoc/templates \
   -v `pwd`/latex-files:/root/texmf/tex/xelatex \
   -v `pwd`/bibtools/ieee.csl:/root/ieee.csl \
@@ -16,6 +17,7 @@ docker run \
     --output=/root/out/main.pdf /root/main.pdc
 
 docker run \
+  --rm \
   -v `pwd`/pandoc-templates:/root/.pandoc/templates \
   -v `pwd`/latex-files:/root/texmf/tex/xelatex \
   -v `pwd`/bibtools/ieee.csl:/root/ieee.csl \

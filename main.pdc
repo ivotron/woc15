@@ -38,8 +38,8 @@ tags:
 category: labnotebook
 layout: paper
 numbersections: true
-documentclass: acm-sig-alternate
 substitute-hyperref: true
+documentclass: acm-sig-alternate
 disable-copyright: true
 ---
 
@@ -74,7 +74,7 @@ computational abilities to collect and manage data we should be able
 to record and reconstruct environments for particular results 
 perfectly. However, this is not the case, mainly due to three factors:
 
-  1. Association between experiment and its codebase.
+  1. Availability of an experiment's dependencies[^andalso].
   2. Evolving software.
   3. Changes in hardware.
 
@@ -87,6 +87,10 @@ since the code might not compile and, even if compilable, the results
 might differ, in which case the differences have to be analyzed in 
 order to corroborate the validity of the original experiment.
 
+[^andalso]: By dependencies we mean the codebase and all other assets 
+associated to results, such as input/output files and library 
+dependencies.
+
 Reproducing experimental results when the underlying hardware 
 environment changes (3) is challenging mainly due to the inability of 
 predicting the effects of such changes in the outcome of an 
@@ -98,18 +102,25 @@ Computer Systems research, cannot be accounted easily
 [@clark_xen_2004].
 
 Container technology [@soltesz_container-based_2007] is currently 
-employed as a way of reducing the complexity of software deployment in 
-cloud computing infrastructure and has taken the role that package 
-management tools had in the past, where they were used to control 
-upgrades and keep track of change in the dependencies of an 
-application [@dicosmo_package_2008]. In this work, we make the case 
-for containers as a way of tackling some of the reproducibility 
-problems in Computer Systems research. In order to reduce the problem 
-space, we focus to local and distributed storage systems in various 
-forms (e.g., local file systems, distributed file systems, key-value 
-stores, and related data-storage engines) since this is one of the 
-most important areas underlying cloud computing and big-data 
-processing, as well as our area of expertise.
+employed as a way of reducing the complexity of software deployment 
+and portability of applications in cloud computing infrastructure. 
+Arguably, containers have taken the role that package management tools 
+had in the past, where they were used to control upgrades and keep 
+track of change in the dependencies of an application 
+[@di_cosmo_package_2008]. In this work, we make the case for 
+containers as a way of tackling some of the reproducibility problems 
+in Computer Systems research. In order to reduce the problem space, we 
+focus to local and distributed storage systems in various forms (e.g., 
+local file systems, distributed file systems, key-value stores, and 
+related data-storage engines) since this is one of the most important 
+areas underlying cloud computing and big-data processing, as well as 
+our area of expertise.
+
+------------
+
+**TODO: update based on how article looks like**
+
+\ 
 
 We first describe the salient features of container technology that 
 are relevant in the evaluation of experiments. We then describe what 
@@ -124,27 +135,57 @@ We then discuss the benefits and limitations of using containers as a
 way of reproducing research in other areas of experimental systems 
 research. We conclude and delineate future work.
 
-# Experimental Evaluation in Computer Systems Research
+------------
+
+# Experimental Evaluation of Computer Systems Research
 
 An experiment in systems research is usually composed by a triplet of 
 \(1\) workload, (2) a specific system where the workload runs and 
-\(3\) associated results to a particular execution. Respective to this 
-order is the complexity associated to the evaluation of an experiment: 
-obtaining the exact same results is more difficult than getting access 
-to the original workload.
+\(3\) results from a particular execution. Respective to this order is 
+the complexity associated to the evaluation of an experiment: 
+obtaining the exact same results is more difficult than just getting 
+access to the original workload. Thus, we can define a taxonomy to 
+characterize the reproducibility of experiments:
 
-**TODO: extend the above in order to define reproducibility levels**
+ 1. _Workload Reproducibility_. We have access to the original code 
+    and the particular workload that was used to obtain the original 
+    experimental results.
+ 2. _System Reproducibility_. We have access to hardware and software 
+    resources that resemble the original dependencies.
+ 3. _Results Reproducibility_. The results of the re-execution of an 
+    experiment are valid with respect to the original.
 
-\ 
+In storage systems research, workload reproducibility usually entails 
+getting access to the configuration of the benchmarking tool that 
+defines the IO patterns of the experiment. For example, if an 
+experiment uses [FIO][fio] as the benchmarking tool, then the workload 
+is defined by the FIO input file. System reproducibility can be 
+divided in software and hardware. The former corresponds to the entire 
+software stack from the firmware/kernel up to the libraries used, 
+whereas the latter comprises the same set of hardware devices involved 
+in the experiment such as specific storage drives and network switches 
+and cards.
 
-**TODO: also, talk about how container features help with each level 
-of reproducibility: metrics, deployment, automation**
+_Results Reproducibility_ does not necessarily imply the re-generation 
+of the exact same performance metrics, instead it connotes the ability 
+to validate the original results by obtaining metrics that are very 
+close (in shape or trends) to the original experiment. Given this, 
+evaluating whether a re-run of an experiment reproduces the original 
+results can be a subjective task. We propose specific definitions 
+within the domain of storage systems in terms of resource utilization 
+over time, for example, IO throughput (IOPS) of a storage device. 
+**TODO:extend**
+
+**TODO: talk about deployment, automation**. Container technology can 
+be used to achieve 1 and partially 2, since a container keeps the 
+snapshot of the entire system. The challenge is in the evaluation of 
+results when the underlying OS kernel and hardware change.
 
 # Containers For Reproducible Research
 
-For experiments suitable to be containerized, we define a mapping 
-methodology that allows to evaluate experimental results on hardware 
-distinct than the original:
+For experiments suitable to be containerized ([see](#all) for a 
+discussion), we define a mapping methodology that allows to evaluate 
+experimental results on hardware distinct than the original:
 
   1. Obtain the profile of the original hardware
   2. Obtain the configuration of each container (e.g. User Beacons or 
@@ -152,6 +193,17 @@ distinct than the original:
   3. Obtain the profile of the new hardware
   4. Generate a configuration for the new hardware based on 2-4
 
+We envision the following piece of infrastructure [^note]:
+
+  0. Hardware profiling module that runs at multiple intervals (e.g. 
+     daily, for every execution)
+  1. A monitoring process on each host OS
+  2. Notion of distributed execution of an experiment
+  3. Monitor daemon keeps track of container metrics
+  4. At the end of execution.
+
+[^note]: **NOTE:** for the camera-ready version of this paper we will 
+add a diagram of the architectural view of our extensions.
 
 # Use Case: Reproducing Results on Different Storage Devices
 
@@ -193,7 +245,7 @@ metric profiles, e.g.:
 We need to profile an experiment, store the profile along with the 
 image of the container, categorize the profile and index it.
 
-## Can All Systems Research Be Containerized?
+## Can All Systems Research Be Containerized? {#all}
 
 Based on previous performance evaluations of container technology 
 [@xavier_performance_2013 ; @felter_updated_2014 ; 
@@ -208,9 +260,11 @@ virtualization:
     perform I/O operations within the filesystem namespace where the 
     container is located.
   * Network address translation (NAT) is required.
-  * More than one container needs to be co-located in the same 
-    physical host
-  * Kernel version can't be frozen
+  * Distinct experiments consolidated on the same host.
+  * For an experiment, containers with conflicting roles need to be 
+    co-located in the same physical host (e.g. two database instances 
+    on the same host).
+  * Kernel version can't be frozen.
 
 Any experiment for which any of the above applies should be carefully 
 examined since the effects of containerization can affect the results. 
@@ -219,23 +273,32 @@ effects.
 
 ## Other Lessons Learned So Far
 
-  1. Version control everything and use git subtrees or submodules to 
-     keep track of inter-dependencies between projects. For example, 
-     if a repository contains the definition of a container, make it a 
-     submodule of the main project.
-  2. Refer to the specific version ID that a paper's results were 
-     obtained from. Git's tagging feature can also be used to point to 
-     the version that contains the codebase for an experiment (e.g. 
-     "sosp15")
-  3. Keep a container image for every runnable version of the 
-     experiment codebase (e.g. use docker's automated build feature).
-  4. Whenever possible, use CI technologies to ensure that changes to 
-     the codebase don't disrupt the reproducibility of the experiment.
-  5. Even without something like T-RECS, it is useful to obtain a 
-     profile of the hardware used (eg. making use of tools such as 
-     SoSReport[^sosreport]), as well as the cgroups configuration and 
-     publish these as part of the experimental results (i.e. add it to 
-     the commit that a paper's results are based on).
+We list some of the lessons that we have learned as part of our 
+experience in implementing experiments in containers:
+
+  * Version control everything and use git subtrees/submodules (or 
+    alike) to keep track of inter-dependencies between projects. For 
+    example, if a git repository contains the definition of a 
+    container, make it a submodule of the main project.
+  * Refer to the specific version ID that a paper's results were 
+    obtained from. Git's tagging feature can also be used to point to 
+    the version that contains the codebase for an experiment (e.g. 
+    "sosp15").
+  * When possible, add experimental results as part of the commit that 
+    contains the codebase of an experiment. In other words, try to 
+    make the experiment as self-contained as possible, so that 
+    checking out that particular version contains all the dependencies 
+    and generated data.
+  * Keep a downloadable container image for the version of the 
+    experiment codebase (e.g. use the docker registry and its 
+    automated build feature).
+  * Whenever possible, use CI technologies to ensure that changes to 
+    the codebase don't disrupt the reproducibility of the experiment.
+  * Obtain a profile of the hardware used (eg. making use of tools 
+    such as SoSReport[^sosreport]), as well as the resource 
+    configuration of every container and publish these as part of the 
+    experimental results (i.e. add it to the commit that a paper's 
+    results are based on).
 
 # Related Work
 

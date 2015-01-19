@@ -1,2 +1,9 @@
 *.sw?
 out
+pandoc-templates
+docker-pandoc
+overleaf
+bibtools
+bibfile
+latex-files
+.gitmodules
