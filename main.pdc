@@ -1,36 +1,27 @@
 ---
 title: "The Role of Container Technology in Reproducible Computer Systems Research"
 author:
-  - name: "Ivo Jimenez"
+  - name: "Ivo Jimenez, Carlos Maltzahn"
     affiliation: "UC Santa Cruz"
-    email: "ivo@cs.ucsc.edu"
-  - name: "Carlos Maltzahn"
-    affiliation: "UC Santa Cruz"
-    email: "carlosm@ucsc.edu"
-  - name: "Adam Moody"
+    email: "`(ivo|carlosm)@cs.ucsc.edu`"
+  - name: "Adam Moody, Kathryn Mohror"
     affiliation: "Lawrence Livermore National Laboratories"
-    email: "moody11@llnl.gov"
-  - name: "Kathryn Mohror"
-    affiliation: "Lawrence Livermore National Laboratories"
-    email: "kathryn@llnl.gov"
+    email: "`(moody11|kathryn)@llnl.gov`"
   - name: "Jay Lofstead"
     affiliation: "Sandia National Laboratories"
-    email: "gflofst@sandia.gov"
+    email: "`gflofst@sandia.gov`"
   - name: "Remzi Arpaci-Dusseau"
     affiliation: "University of Wisconsin-Madison"
-    email: "remzi@cs.wisc.edu"
+    email: "`remzi@cs.wisc.edu`"
 abstract: |
   Evaluating experimental results in the field of Computer Systems is 
   a challenging task, mainly due to the many changes in software and 
   hardware that computational environments go through. In this 
   position paper, we analyze salient features of container technology 
   that, if leveraged correctly, can help reducing the complexity of 
-  reproducing experiments in systems research. We present a use case 
-  in the area of storage systems to illustrate the extensions that we 
-  envision, mainly in terms of container management infrastructure. We 
-  also discuss the benefits and limitations of using containers as a 
-  way of reproducing research in other areas of experimental systems 
-  research.
+  reproducing experiments in systems research. We also discuss the 
+  benefits and limitations of using containers as a way of reproducing 
+  research in other areas of experimental systems research.
 tags:
   - phdthesis
   - workshop-paper
@@ -38,68 +29,59 @@ tags:
 category: labnotebook
 layout: paper
 numbersections: true
+links-as-notes: true
 substitute-hyperref: true
-documentclass: acm-sig-alternate
-disable-copyright: true
+no-page-number-on-titlepage: true
+documentclass: ieeetran
 ---
+
+<!--
+We present a use case in the area of storage systems to illustrate the 
+extensions that we envision, mainly in terms of container management 
+infrastructure
+-->
 
 # Introduction
 
 A key component of the scientific method is the ability to revisit and 
 replicate previous results. Registering information about an 
-experiment (referred to as _provenance_) such as annotations, diagrams 
-and lists, allows scientists to interpret and understand results. By 
-examining the steps that led to a result, scientists can gain insights 
-into the chain of reasoning used in its production, verify that the 
-experiment was performed according to acceptable procedures, identify 
-the experiment's inputs, and, in some cases, regenerate the original 
-result [@freire_provenance_2008]. Additionally, reproducibility plays 
-a major roll in education since the amount of information that a 
-student has to digest increases as the pace of scientific discovery 
-accelerates. By having repeatable experiments, a student can learn by 
-looking at provenance information, re-evaluate the questions that the 
-original experiment answered and thus "stand in the shoulder of 
-giants".
+experiment allows scientists to interpret and understand results, as 
+well as verifying that the experiment was performed according to 
+acceptable procedures. Additionally, reproducibility plays a major 
+roll in education since the amount of information that a student has 
+to digest increases as the pace of scientific discovery accelerates. 
+By having repeatable experiments, a student can learn by looking at 
+provenance information, re-evaluate the questions that the original 
+experiment answered and thus "stand in the shoulder of giants".
 
 In applied Computer Science an experiment is carried out in its 
-entirety by a computer [@freire_computational_2012 ; 
-@donoho_reproducible_2009]. Although the scientist is interactively 
-defining the sequence of steps that get executed, ultimately binary 
-programs run on a machine. Repeating a result doesn't require a 
-scientist to rewrite a program, rather it entails obtaining the 
-original program and executing it (possibly in a distinct 
-environment). Thus, in principle, a well documented experiment should 
-be repeatable automatically (e.g. by typing `make`). With our current 
-computational abilities to collect and manage data we should be able 
-to record and reconstruct environments for particular results 
-perfectly. However, this is not the case, mainly due to three factors:
+entirety by a computer. Repeating a result doesn't require a scientist 
+to rewrite a program, rather it entails obtaining the original program 
+and executing it (possibly in a distinct environment). Thus, in 
+principle, a well documented experiment should be repeatable 
+automatically (e.g. by typing `make`), however, this is not the case. 
+Today's computational environments are complex and accounting for all 
+possible effects of changes within and across systems is a challenging 
+task [@freire_computational_2012 ; @donoho_reproducible_2009].
 
-  1. Availability of an experiment's dependencies[^andalso].
-  2. Evolving software.
-  3. Changes in hardware.
+Version control systems (VCS) are sometimes used to address some of 
+these problems. By having a particular version ID for the software 
+used for an article's experimental results, reviewers and readers can 
+have access to the same codebase [@brown_how_2014]. However, 
+availability of the source code does not guarantee reproducibility 
+[@collberg_measuring_2014] since the code might not compile and, even 
+if compilable, the results might differ, in which case the differences 
+have to be analyzed in order to corroborate the validity of the 
+original experiment.
 
-Version control systems (VCS) are sometimes used to tackle 1 and 2. By 
-having a particular version ID for the software used for an article's 
-experimental results, reviewers and readers can have access to the 
-same codebase [@brown_how_2014]. However, availability of the source 
-code does not guarantee reproducibility [@collberg_measuring_2014] 
-since the code might not compile and, even if compilable, the results 
-might differ, in which case the differences have to be analyzed in 
-order to corroborate the validity of the original experiment.
-
-[^andalso]: By dependencies we mean the codebase and all other assets 
-associated to results, such as input/output files and library 
-dependencies.
-
-Reproducing experimental results when the underlying hardware 
-environment changes (3) is challenging mainly due to the inability of 
-predicting the effects of such changes in the outcome of an 
+Additionally, reproducing experimental results when the underlying 
+hardware environment changes challenging mainly due to the inability 
+of predicting the effects of such changes in the outcome of an 
 experiment. A Virtual Machine (VM) can be used to partially address 
 this issue but the overheads associated in terms of performance (the 
 hypervisor "tax") and management (creating, storing and transferring 
 them) can be high and, in some fields of Computer Science such as 
-Computer Systems research, cannot be accounted easily 
-[@clark_xen_2004].
+Computer Systems research, cannot be accounted easily [@clark_xen_2004].
 
 Container technology [@soltesz_container-based_2007] is currently 
 employed as a way of reducing the complexity of software deployment 
@@ -109,12 +91,16 @@ had in the past, where they were used to control upgrades and keep
 track of change in the dependencies of an application 
 [@di_cosmo_package_2008]. In this work, we make the case for 
 containers as a way of tackling some of the reproducibility problems 
-in Computer Systems research. In order to reduce the problem space, we 
-focus to local and distributed storage systems in various forms (e.g., 
-local file systems, distributed file systems, key-value stores, and 
-related data-storage engines) since this is one of the most important 
-areas underlying cloud computing and big-data processing, as well as 
-our area of expertise.
+in Computer Systems research. Specifically, we propose to use the 
+resource accounting and limiting components of OS-level virtualization 
+as a basis for creating execution profiles of experiments that can be 
+associated with results, so that these can subsequently be analyzed 
+when an experiment is evaluated. In order to reduce the problem space, 
+some of our discussions focus in local and distributed storage systems 
+in various forms (e.g., local file systems, distributed file systems, 
+key-value stores, and related data-storage engines) since this is one 
+of the most important areas underlying cloud computing and big-data 
+processing, as well as our area of expertise.
 
 The rest of this paper is organized as follows. We first describe the 
 distinct levels of reproducibility that can be associated with 
@@ -123,22 +109,23 @@ the area of storage [systems](#experiment). We then analyze salient
 features of container technology that are relevant in the evaluation 
 of experiments and introduce what in our view is missing in order to 
 make containers a useful reproducibility tool for storage systems 
-[research](#extension). We subsequently present a use case that 
-illustrates the container management extensions that we 
-[envision](#case). We finally discuss some limitations of using 
-containers in other areas of experimental systems 
-[research](#discussion) and present [related](#related) and future 
-[work](#future).
+[research](#extension). We then follow with a discussion about the 
+benefits and limitations of using containers in other areas of 
+experimental systems [research](#discussion). We finally discuss 
+related [work](#related) and [conclude](#conclusion).
+
+<!-- We subsequently present a use case that illustrates the container 
+management extensions that we [envision](#case). -->
 
 # Experimental Evaluation of Computer Systems Research {#experiment}
 
-An experiment in systems research is usually composed by a triplet of 
-\(1\) workload, (2) a specific system where the workload runs and 
-\(3\) results from a particular execution. Respective to this order is 
-the complexity associated to the evaluation of an experiment: 
-obtaining the exact same results is more difficult than just getting 
-access to the original workload. Thus, we can define a taxonomy to 
-characterize the reproducibility of experiments:
+An experiment in systems research is composed by a triplet of \(1\) 
+workload, (2) a specific system where the workload runs and \(3\) 
+results from a particular execution. Respective to this order is the 
+complexity associated to the evaluation of an experiment: obtaining 
+the exact same results is more difficult than just getting access to 
+the original workload. Thus, we can define a taxonomy to characterize 
+the reproducibility of experiments:
 
  1. _Workload Reproducibility_. We have access to the original code 
     and the particular workload that was used to obtain the original 
@@ -148,57 +135,80 @@ characterize the reproducibility of experiments:
  3. _Results Reproducibility_. The results of the re-execution of an 
     experiment are valid with respect to the original.
 
-In storage systems research, workload reproducibility usually entails 
+In storage systems research, workload reproducibility is achieved by 
 getting access to the configuration of the benchmarking tool that 
 defines the IO patterns of the experiment. For example, if an 
-experiment uses the Flexible IO Tester[^fio] (FIO), then the workload 
+experiment uses the [Flexible IO Tester][fio] (FIO), then the workload 
 is defined by the FIO input file.
 
 System reproducibility can be divided in software and hardware. The 
 former corresponds to the entire software stack from the 
-firmware/kernel up to the libraries used, whereas the latter comprises 
-the same set of hardware devices involved in the experiment such as 
-specific storage drives and network switches and cards.
+firmware/kernel up to the libraries used by an experiment, whereas the 
+latter comprises the set of hardware devices involved in the 
+experiment such as specific the CPU model, storage drives or network 
+cards that an experiment ran on.
 
-Reproducing results does not necessarily imply the re-generation of 
-the exact same measurements, instead it entails validating the results 
-by checking how close (in shape or trends) to the original experiment 
+Reproducing results does not necessarily imply the regeneration of the 
+exact same measurements, instead it entails validating the results by 
+checking how close (in shape or trends) to the original experiment 
 they are. Given this, evaluating an experiment can be a subjective 
-task. We propose specific definitions within the domain of storage 
-systems in terms of resource utilization, for example, bandwidth 
-(IOPS) of a storage device.
-
-While container technology can be used to achieve 1 and partially 2 
-(thanks to the way images are snapshots of the entire file system), 
-the challenge is in the evaluation of results when the underlying OS 
-kernel and hardware change (3), which is the subject of the next 
-section.
+task. We propose metrics within the domain of storage systems in terms 
+of resource utilization, specifically memory, CPU, and bandwidth, as a 
+way of having objective metrics that do not give rise to ambiguity 
+while comparing results.
 
 # Containers For Reproducible Systems Research {#extension}
 
-For experiments suitable to be containerized ([see](#all) for a 
-discussion), we define a mapping methodology that allows to evaluate 
-experimental results on hardware distinct than the original:
+Current implementations of OS-level virtualization (e.g. [LXC]  or 
+[OpenVZ]) include an accounting component that keeps track of the 
+resource utilization of a container over time. In general, this module 
+can account for CPU, memory, network and IO. By periodically checking 
+and recording these metrics while an experiment runs, we can obtain a 
+profile of an experiment's execution. This profile is the signature of 
+the experiment on the particular hardware that it runs on. The 
+challenge is to recreate results on distinct hardware. By having the 
+performance profile along with the performance profile of the 
+underlying hardware, we can provide enough information for researches 
+to use while evaluating a particular result. In concrete, we propose 
+the following mapping methodology:
 
   1. Obtain the profile of the original hardware
-  2. Obtain the configuration of each container (e.g. User Beacons or 
-     cgroup configuration)
+  2. Obtain the resource utilization configuration of each container
   3. Obtain the profile of the new hardware
   4. Generate a configuration for the new hardware based on 2-4
 
-We envision the following piece of infrastructure [^note]:
+The hardware profile is composed of static (e.g. the output of `lshw`) 
+and dynamic information (e.g. the execution of micro-benchmarks to 
+characterize the bare-metal performance of a machine).
 
-  0. Hardware profiling module that runs at multiple intervals (e.g. 
-     daily, for every execution)
-  1. A monitoring process on each host OS
-  2. Notion of distributed execution of an experiment
-  3. Monitor daemon keeps track of container metrics
-  4. At the end of execution.
+![A userpace process running alongside the container manager (LXC) 
+that periodically probes the statistics of containers in order to 
+obtain an execution profile.](/root/figures/monitor.png)
 
-[^note]: **NOTE:** for the camera-ready version of this paper we will 
-add a diagram of the architectural view of our extensions.
+Using LXC as an example, we show in Figure 1 a monitoring daemon 
+running in as a userspace process in the host. This process 
+periodically dumps the content of the `cgroups` pseudo-filesystem in 
+order to capture the runtime metrics of the containers running in the 
+system.
 
-# Use Case: Reproducing Results on Different Storage Devices {#case}
+An alternative for structuring this information is by defining the 
+following schema: `(IMAGE ID | EXECUTION ID | HW PROFILE ID | CGROUPS 
+CONF | EXECUTION PROFILE)`. Where `IMAGE ID` corresponds to the image 
+where the container was instantiated from. `EXECUTION ID` corresponds 
+to a particular execution of the experiment with associated 
+timestamps. `HW PROFILE ID`, as mentioned above, captures the 
+bare-metal specification of the machine where the container executes.
+
+The execution database can be located remotely in a central repository 
+that serves as the hub for managing experiments in a distributed 
+environment. For example, this monitoring component could be 
+implemented as a submodule of CloudLab [@ricci_introducing_2014]. For 
+experiments consisting of multiple hosts and container images, 
+orchestration tools such as Mesos [@hindman_mesos_2011] can also be 
+extended to incorporate this profiling functionality.
+
+<!--
+# Use Case: Evaluating Results on Different Storage Devices {#case}
 
 We compare:
 
@@ -206,7 +216,7 @@ We compare:
   * The equivalent (modern) model of an old hard drive
   * An SSD
 
-We will show that:
+We show that:
 
   * Direct I/O is reproducible
   * Asynchronous I/O is not
@@ -218,6 +228,7 @@ configuration of containers can help in:
 
   * mapping to new hardware
   * mapping to old-but-aged hardware
+-->
 
 # Discussion {#discussion}
 
@@ -226,17 +237,20 @@ as general reproducibility guidelines when working with containers.
 
 ## Cataloging Experiments
 
-We can characterize experiments by creating categories of container 
-metric profiles, e.g.:
+By storing profiles of experiments, we can create categories of 
+container metrics that describe in a high-level what the experiment's 
+goal is, for example:
 
   * In-memory only
   * Storage intensive
   * Network intensive
   * CPU intensive
-  * xx% of caching effects
+  * 50% of caching effects
 
-We need to profile an experiment, store the profile along with the 
-image of the container, categorize the profile and index it.
+Assume there is a central repository of experiments such as CloudLab 
+[@ricci_introducing_2014]. A scientist wanting to test new ideas in 
+systems research can look for experiments in this database by issuing 
+queries with a particular category in mind.
 
 ## Can All Systems Research Be Containerized? {#all}
 
@@ -289,10 +303,10 @@ experience in implementing experiments in containers:
   * Whenever possible, use CI technologies to ensure that changes to 
     the codebase don't disrupt the reproducibility of the experiment.
   * Obtain a profile of the hardware used (eg. making use of tools 
-    such as SoSReport[^sosreport]), as well as the resource 
-    configuration of every container and publish these as part of the 
-    experimental results (i.e. add it to the commit that a paper's 
-    results are based on).
+    such as [SoSReport]), as well as the resource configuration of 
+    every container and publish these as part of the experimental 
+    results (i.e. add it to the commit that a paper's results are 
+    based on).
 
 # Related Work {#related}
 
@@ -304,9 +318,9 @@ computational research community [@freire_provenance_2008 ;
 @freire_computational_2012 ; @stodden_implementing_2014 ; 
 @neylon_changing_2012 ; @cheney_provenance_2009 ; 
 @leveqije_reproducible_2012], where the focus is more on numerical 
-reproducibility rather than performance. Similarly, efforts such as 
-_The Recomputation Manifesto_ [@gent_recomputation_2013] and the 
-_Software Sustainability Institute_ [@crouch_software_2013] have 
+reproducibility rather than performance evaluation. Similarly, efforts 
+such as _The Recomputation Manifesto_ [@gent_recomputation_2013] and 
+the _Software Sustainability Institute_ [@crouch_software_2013] have 
 reproducibility as a central part of their endeavour but leave runtime 
 performance as a secondary problem. In systems research, runtime 
 performance _is_ the subject of study, thus we need to look at it as a 
@@ -317,9 +331,9 @@ performance in mind.
 In [@collberg_measuring_2014], the authors took 613 articles published 
 in 13 top-tier systems research conferences and found that 25% of the 
 articles are reproducible (under their reproducibility criteria). The 
-authors did not analyzed performance. In our case, we are interested 
+authors did not analyze performance. In our case, we are interested 
 not only in being able to rebuild binaries and run them but also in 
-evaluating the results.
+evaluating the performance characteristics of the results.
 
 Containers, and specifically docker, have been the subject of recent 
 efforts that try to alleviate some of the reproducibility problems in 
@@ -328,32 +342,26 @@ Reprozip [@chirigati_reprozip_2013] package an experiment in a
 container without having to initially implement it in one (i.e. 
 automates the creation of a container from an "non-containerized" 
 environment). Our work is complementary in the sense that we look at 
-the conditions in which the experiment can be validated in order tu 
-ensure that the containerized version will (or won't) produce valid 
-results.
+the conditions in which the experiment can be validated in terms of 
+performance behavior if it runs within a container.
 
-# Conclusion and Future Work {#future}
+# Conclusion {#conclusion}
 
-Take papers from other sub-disciplines of Systems Research:
+In this paper we have presented our proposal for complementing 
+container management infrastructure to capture execution profiles with 
+the purpose of making these available to experimental research 
+reviewers and readers. We are in the process of testing this ideas 
+with concrete published papers in several areas of systems research.
 
-  * Kernel
-  * Network
-  * Hardware
-
-How can we repeat the effort presented in this paper for the above?
-
-# Acknowledgements
-
-This work was partially supported by NSF grant ... We wish to thank 
-...
+**Acknowledgements:** This work was partially supported by NSF grant 
+... We wish to thank ...
 
 # References
 
-[^sosreport]: <https://www.github.com/sosreport/sos>
-
-[^recomp]: <http://www.recomputation.org/manifesto>
-
-[^fio]: <https://github.com/axboe/fio>
+[SoSReport]: https://www.github.com/sosreport/sos
+[fio]: https://github.com/axboe/fio
+[LXC]: https://www.kernel.org/doc/Documentation/cgroups
+[OpenVZ]: https://wiki.openvz.org/Proc/user_beancounters
 
 <!-- hanged biblio-->
 
@@ -362,3 +370,5 @@ This work was partially supported by NSF grant ... We wish to thank
 \setlength{\parindent}{-0.2in}
 \setlength{\leftskip}{0.2in}
 \setlength{\parskip}{8pt}
+
+

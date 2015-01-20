@@ -5,6 +5,7 @@ docker run \
   -v `pwd`/bibtools/ieee.csl:/root/ieee.csl \
   -v `pwd`/bibfile/zotero.bib:/root/citations.bib \
   -v `pwd`/main.pdc:/root/main.pdc \
+  -v `pwd`/figures:/root/figures \
   -v `pwd`/out:/root/out \
   ivotron/pandoc:1.13.2 \
     --standalone \
@@ -13,7 +14,7 @@ docker run \
     --csl=/root/ieee.csl \
     --bibliography=/root/citations.bib \
     --reference-links \
-    --metadata=acm-sig-alternate:'yes' \
+    --metadata=ieeetran:'yes' \
     --output=/root/out/main.pdf /root/main.pdc
 
 docker run \
@@ -31,5 +32,5 @@ docker run \
     --csl=/root/ieee.csl \
     --bibliography=/root/citations.bib \
     --reference-links \
-    --metadata=acm-sig-alternate:'yes' \
+    --metadata=ieeetran:'yes' \
     --output=/root/out/main.tex /root/main.pdc
