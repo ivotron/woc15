@@ -140,12 +140,12 @@ research. We conclude and delineate future work.
 # Experimental Evaluation of Computer Systems Research
 
 An experiment in systems research is usually composed by a triplet of 
-\(1\) workload, (2) a specific system where the workload runs and 
-\(3\) results from a particular execution. Respective to this order is 
-the complexity associated to the evaluation of an experiment: 
-obtaining the exact same results is more difficult than just getting 
-access to the original workload. Thus, we can define a taxonomy to 
-characterize the reproducibility of experiments:
+workload, a specific system where the workload runs and results from a 
+particular execution. Respective to this order is the complexity 
+associated to the evaluation of an experiment: obtaining the exact 
+same results is more difficult than just getting access to the 
+original workload. Thus, we can define a taxonomy to characterize the 
+reproducibility of experiments:
 
  1. _Workload Reproducibility_. We have access to the original code 
     and the particular workload that was used to obtain the original 
@@ -158,28 +158,29 @@ characterize the reproducibility of experiments:
 In storage systems research, workload reproducibility usually entails 
 getting access to the configuration of the benchmarking tool that 
 defines the IO patterns of the experiment. For example, if an 
-experiment uses [FIO][fio] as the benchmarking tool, then the workload 
-is defined by the FIO input file. System reproducibility can be 
-divided in software and hardware. The former corresponds to the entire 
-software stack from the firmware/kernel up to the libraries used, 
-whereas the latter comprises the same set of hardware devices involved 
-in the experiment such as specific storage drives and network switches 
-and cards.
+experiment uses the Flexible IO Tester[^fio] (FIO), then the workload 
+is defined by the FIO input file.
 
-_Results Reproducibility_ does not necessarily imply the re-generation 
-of the exact same performance metrics, instead it connotes the ability 
-to validate the original results by obtaining metrics that are very 
-close (in shape or trends) to the original experiment. Given this, 
-evaluating whether a re-run of an experiment reproduces the original 
-results can be a subjective task. We propose specific definitions 
-within the domain of storage systems in terms of resource utilization 
-over time, for example, IO throughput (IOPS) of a storage device. 
-**TODO:extend**
+System reproducibility can be divided in software and hardware. The 
+former corresponds to the entire software stack from the 
+firmware/kernel up to the libraries used, whereas the latter comprises 
+the same set of hardware devices involved in the experiment such as 
+specific storage drives and network switches and cards.
+
+Reproducing results does not necessarily imply the re-generation of 
+the exact same performance metrics, instead it entails validating the 
+original results by obtaining metrics that are very close (in shape or 
+trends) to the original experiment. Given this, evaluating whether a 
+re-run of an experiment reproduces the original results can be a 
+subjective task. We propose specific definitions within the domain of 
+storage systems in terms of resource utilization over time, for 
+example, IO throughput (IOPS) of a storage device. **TODO:extend**
 
 **TODO: talk about deployment, automation**. Container technology can 
 be used to achieve 1 and partially 2, since a container keeps the 
 snapshot of the entire system. The challenge is in the evaluation of 
-results when the underlying OS kernel and hardware change.
+results when the underlying OS kernel and hardware change, which we 
+describe in the next section.
 
 # Containers For Reproducible Research
 
@@ -228,8 +229,8 @@ configuration of containers can help in:
 
 # Discussion
 
-We discuss benefits and limitations of containers, as well as general 
-guidelines.
+We discuss other benefits and limitations of containerization, as well 
+as general reproducibility guidelines when working with containers.
 
 ## Cataloging Experiments
 
@@ -302,22 +303,41 @@ experience in implementing experiments in containers:
 
 # Related Work
 
-  * Recent efforts such as _The Recomputation Manifesto_ [^recomp] 
-    leave runtime performance as a secondary problem. For most of the 
-    work in Systems Research, runtime performance _is_ the subject of 
-    research thus we need to look at it as a primary issue.
+The challenging task of reproducing experimental results in applied 
+computer science research has been long recognized 
+[@ignizio_establishment_1971 ; @ignizio_validating_1973 ; 
+@crowder_reporting_1979]. This issue has has recently received a 
+significant amount of attention from the computational research 
+community [@freire_provenance_2008 ; @freire_computational_2012 ; 
+@stodden_implementing_2014 ; @neylon_changing_2012 ; 
+@cheney_provenance_2009 ; @leveqije_reproducible_2012], where the 
+focus is more on numerical reproducibility rather than performance. 
+Similarly, efforts such as _The Recomputation Manifesto_ 
+[@gent_recomputation_2013] and the _Software Sustainability Institute_ 
+[@crouch_software_2013] have reproducibility as a central part of 
+their endeavour but leave runtime performance as a secondary problem. 
+In systems research, runtime performance _is_ the subject of study, 
+thus we need to look at it as a primary issue. By obtaining profiles 
+of executions and making them part of the results, we allow 
+researchers to validate experiments with performance in mind.
 
-  * How we differ/extend the work in [@collberg_measuring_2014]? 
-    **Answer**: we are interested not only in being able to rebuild 
-    binaries but also evaluate the validity of the results.
+In [@collberg_measuring_2014], the authors took a long list of 
+articles published in 13 top-tier conferences found that 25% of the 
+articles are reproducible (under their reproducibility criteria). The 
+authors did not analyzed performance. In our case, we are interested 
+not only in being able to rebuild binaries and run them but also in 
+evaluating the results.
 
-  * Existing tools such as Reprozip [@ ] try to package an experiment 
-    in a container without having to implement it in one (i.e. 
-    automates the creation of a container from an "uncontainerized" 
-    environment). Our work is complementary in the sense that we look 
-    at the conditions in which the experiment can be validated in 
-    order tu ensure that the containerized version will (or won't) 
-    produce valid results.
+Containers, and specifically docker, have been the subject of recent 
+efforts that try to alleviate some of the reproducibility problems in 
+data science [@boettiger_introduction_2014]. Existing tools such as 
+Reprozip [@chirigati_reprozip_2013] package an experiment in a 
+container without having to initially implement it in one (i.e. 
+automates the creation of a container from an "non-containerized" 
+environment). Our work is complementary in the sense that we look at 
+the conditions in which the experiment can be validated in order tu 
+ensure that the containerized version will (or won't) produce valid 
+results.
 
 # Conclusion and Future Work
 
@@ -333,9 +353,9 @@ How can we repeat the effort presented in this paper for the above?
 
 [^sosreport]: <https://www.github.com/sosreport/sos>
 
-[^recomp]: <http://www.recomputation.org/manifesto/>
+[^recomp]: <http://www.recomputation.org/manifesto>
 
-[fio]: https://github.com/axboe/fio/
+[^fio]: <https://github.com/axboe/fio>
 
 <!-- hanged biblio-->
 
