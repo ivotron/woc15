@@ -80,24 +80,34 @@ hypervisor "tax") and management (creating, storing and transferring
 them) can be high and, in some fields of Computer Science such as 
 Computer Systems research, cannot be accounted easily [@clark_xen_2004].
 
-Container technology [@soltesz_container-based_2007] is currently 
+Operating-system-level virtualization [@soltesz_container-based_2007] 
+is a server virtualization method where the kernel of an operating 
+system allows for multiple isolated user space instances, instead of 
+just one. Such instances (often called containers, virtualization 
+engines (VE), virtual private servers (VPS), or jails) may look and 
+feel like a real server from the point of view of its owners and 
+users. In addition to isolation mechanisms, the kernel often provides 
+resource management features to limit the impact of one container's 
+activities on the other containers. Container technology is currently 
 employed as a way of reducing the complexity of software deployment 
 and portability of applications in cloud computing infrastructure. 
 Arguably, containers have taken the role that package management tools 
 had in the past, where they were used to control upgrades and keep 
 track of change in the dependencies of an application 
-[@di_cosmo_package_2008]. In this work, we make the case for 
-containers as a way of tackling some of the reproducibility problems 
-in Computer Systems research. Specifically, we propose to use the 
-resource accounting and limiting components of OS-level virtualization 
-as a basis for creating execution profiles of experiments that can be 
-associated with results, so that these can subsequently be analyzed 
-when an experiment is evaluated. In order to reduce the problem space, 
-we focus on local and distributed storage systems in various forms 
-(e.g., local file systems, distributed file systems, key-value stores, 
-and related data-storage engines) since this is one of the most 
-important areas underlying cloud computing and big-data processing, as 
-well as our area of expertise.
+[@di_cosmo_package_2008].
+
+In this work, we make the case for containers as a way of tackling 
+some of the reproducibility problems in Computer Systems research. 
+Specifically, we propose to use the resource accounting and limiting 
+components of OS-level virtualization as a basis for creating 
+execution profiles of experiments that can be associated with results, 
+so that these can subsequently be analyzed when an experiment is 
+evaluated. In order to reduce the problem space, we focus on local and 
+distributed storage systems in various forms (e.g., local file 
+systems, distributed file systems, key-value stores, and related 
+data-storage engines) since this is one of the most important areas 
+underlying cloud computing and big-data processing, as well as our 
+area of expertise.
 
 The rest of this paper is organized as follows. We first describe the 
 distinct levels of reproducibility that can be associated with 
@@ -190,17 +200,16 @@ system.
 An alternative for structuring this information is by defining the 
 following schema:
 
-`(IMAGE | EXECUTION ID | HW PROFILE | CGROUPS CONF | EXEC PROFILE)`
+`(IMG | EX_ID | HW_PROFILE | CGROUPS | EX_PROFILE)`
 
-Where `IMAGE` points to the image where the container was instantiated 
-from. `EXECUTION ID` corresponds to a particular execution of the 
-experiment with associated timestamps. `HW PROFILE`, as mentioned 
-above, captures the bare-metal performance of the machine where the 
-container executes. `CGROUPS CONF` is the configuration in terms of 
-control groups for the distinct subsystems (CPU, memory, network and 
-IO). `EXEC PROFILE` is the execution profile for a particular 
-execution, i.e. there is one profile for every entry (one for each 
-`EXECUTION ID`).
+Where `IMG` points to the image where the container was instantiated 
+from. `EXE_ID` corresponds to a particular execution of the experiment 
+with associated timestamps. `HW_PROFILE`, as mentioned above, captures 
+the bare-metal performance of the machine where the container 
+executes. `CGROUPS` is the configuration in terms of control groups 
+for the distinct subsystems (CPU, memory, network and IO). 
+`EX_PROFILE` is the execution profile for a particular execution, i.e. 
+there is one profile for every entry (one for each `EX_ID`).
 
 The execution database can be located remotely in a central repository 
 that serves as the hub for managing experiments in a distributed 
