@@ -19,9 +19,12 @@ abstract: |
   hardware that computational environments go through. In this 
   position paper, we analyze salient features of container technology 
   that, if leveraged correctly, can help reducing the complexity of 
-  reproducing experiments in systems research. We also discuss the 
-  benefits and limitations of using containers as a way of reproducing 
-  research in other areas of experimental systems research.
+  reproducing experiments in systems research. We present a use case 
+  in the area of storage systems to illustrate the extensions that we 
+  envision, mainly in terms of container management infrastructure. We 
+  also discuss the benefits and limitations of using containers as a 
+  way of reproducing research in other areas of experimental systems 
+  research.
 tags:
   - phdthesis
   - workshop-paper
@@ -34,12 +37,6 @@ substitute-hyperref: true
 no-page-number-on-titlepage: true
 documentclass: ieeetran
 ---
-
-<!--
-We present a use case in the area of storage systems to illustrate the 
-extensions that we envision, mainly in terms of container management 
-infrastructure
--->
 
 # Introduction
 
@@ -96,11 +93,11 @@ resource accounting and limiting components of OS-level virtualization
 as a basis for creating execution profiles of experiments that can be 
 associated with results, so that these can subsequently be analyzed 
 when an experiment is evaluated. In order to reduce the problem space, 
-some of our discussions focus in local and distributed storage systems 
-in various forms (e.g., local file systems, distributed file systems, 
-key-value stores, and related data-storage engines) since this is one 
-of the most important areas underlying cloud computing and big-data 
-processing, as well as our area of expertise.
+we focus on local and distributed storage systems in various forms 
+(e.g., local file systems, distributed file systems, key-value stores, 
+and related data-storage engines) since this is one of the most 
+important areas underlying cloud computing and big-data processing, as 
+well as our area of expertise.
 
 The rest of this paper is organized as follows. We first describe the 
 distinct levels of reproducibility that can be associated with 
@@ -109,15 +106,14 @@ the area of storage [systems](#experiment). We then analyze salient
 features of container technology that are relevant in the evaluation 
 of experiments and introduce what in our view is missing in order to 
 make containers a useful reproducibility tool for storage systems 
-[research](#extension). We then follow with a discussion about the 
-benefits and limitations of using containers in other areas of 
-experimental systems [research](#discussion). We finally discuss 
-related [work](#related) and [conclude](#conclusion).
+[research](#extension). We subsequently present a use case that 
+illustrates the container management extensions that we 
+[envision](#case). We then follow with a discussion about the benefits 
+and limitations of using containers in other areas of experimental 
+systems [research](#discussion). We finally discuss related 
+[work](#related) and [conclude](#conclusion).
 
-<!-- We subsequently present a use case that illustrates the container 
-management extensions that we [envision](#case). -->
-
-# Experimental Evaluation of Computer Systems Research {#experiment}
+# Evaluation of Experimental Systems Research {#experiment}
 
 An experiment in systems research is composed by a triplet of \(1\) 
 workload, (2) a specific system where the workload runs and \(3\) 
@@ -164,8 +160,8 @@ Current implementations of OS-level virtualization (e.g. [LXC]  or
 resource utilization of a container over time. In general, this module 
 can account for CPU, memory, network and IO. By periodically checking 
 and recording these metrics while an experiment runs, we can obtain a 
-profile of an experiment's execution. This profile is the signature of 
-the experiment on the particular hardware that it runs on. The 
+profile of its execution. This profile is the signature of the 
+experiment on the particular hardware that it was executed on. The 
 challenge is to recreate results on distinct hardware. By having the 
 performance profile along with the performance profile of the 
 underlying hardware, we can provide enough information for researches 
@@ -207,28 +203,94 @@ experiments consisting of multiple hosts and container images,
 orchestration tools such as Mesos [@hindman_mesos_2011] can also be 
 extended to incorporate this profiling functionality.
 
+# Use Case: Scalability Experiments of Ceph OSDI '06 {#case}
+
+To illustrate the utility of having execution and base hardware 
+profiles, we take the Ceph OSDI '06 paper [@weil_ceph_2006] and 
+reproduce one of its experiments. In particular, we look at the 
+scalability experiment from the data performance section (6.1). The 
+reason for selecting this paper is (1) our familiarity with these 
+experiments makes it easier to reason about contextual information not 
+necessarily available directly from the paper and (2) the original 
+hardware used is still available in our laboratory. Each node in the 
+system consist of an 2-core 2212 AMD Opteron @2.0GHz, 8GB of RAM, 1GbE 
+NIC and 500GB Seagate Barracuda ES 250GB hard drives. We created a 
+containerized version of the experiment using the 0.87 branch of Ceph. 
+We use docker 1.3.3 and LXC 1.0.6 running on Ubuntu 12.04 hosts 
+(3.13.0-43 x86_64 kernel).
+
+The experiments on Section 6.1 show the ability of Ceph to saturate 
+disk evenly among the drives of the cluster. Figures 5-7 from the 
+original paper show per-OSD performance as the object size varies from 
+4 KB to 4 MB. In our case we focus on reproducing the scalability 
+experiment of Section 6.1.3 (Figure 8), which uses 4 MB objects, to 
+avoid random IO noise from the hard drives. We ignore the performance 
+of `hash` data distribution and fix the number of placement groups to 
+32K, thus we can meaningful comparisons against the red solid-dotted 
+line in Figure 8.
+
+The original scalability experiment ran with 20 clients per node on 20 
+nodes (400 clients total) and varies the number of OSDs from 2-26 in 
+increments of 2. Every node was connected via 1 GbE link, so the 
+experiment theoretical upper bound is 2GB/s (when there is enough 
+capacity of the OSD cluster to have 20 1Gb connections) or 
+alternatively when the connection limit of the switch is reached. The 
+paper experiments where executed on a Netgear switch which has a 
+capacity of approximately 14 GbE in _real_ total traffic (from a 20 
+advertised), which corresponds to the 24 * 58 = 1400 MB/s combined 
+throughput shown in the original paper.
+
+We scaled down the experiment by reducing the number of clients to 1 
+node (16 clients). This means that our network upper bound is 110 MB/s 
+(the capacity of the 1GbE link from the client to the switch). We 
+throttle IO at 30 MB/s (vs. 58 MB/s of the original paper), so this is 
+our scaling unit (per OSD increment). The reason for scaling down to 
+30 MB/s is that over time, the Seagate disks have aged and performance 
+profile among the hard drives of our cluster is different from the 
+original ~58 MB/s observed in the original paper. In order to 
+amortize, we had to take the lowest common denominator which in this 
+case is 30 MB/s. Given this scaling, we obtain the results shown in 
+Figure 2. We see that the Ceph scales linearly with the number of 
+OSDs, up to the point where we saturate the 1GbE link.
+
+![Reproducing a scaled-down version of the original OSDI '06 
+scalability experiment (Figure 8). The y-axis represents average 
+throughput, as seen by the client. They x-axis corresponds to the size 
+of the cluster (in number of object storage devices (OSD). The dot 
+corresponds to the average of 10 executions of the experiment. It also 
+represents the overall performance of the hard disks in the cluster. 
+Standard error bars show low variability.](/root/figures/ceph1.png)
+
 <!--
-# Use Case: Evaluating Results on Different Storage Devices {#case}
-
-We compare:
-
-  * An old hard drive
-  * The equivalent (modern) model of an old hard drive
-  * An SSD
-
-We show that:
-
-  * Direct I/O is reproducible
-  * Asynchronous I/O is not
-  * Therefore we need to extend containers to handle async requests on 
-    a per-container basis (not on a global)
-
-This case will also illustrate how having the HW profile and base 
-configuration of containers can help in:
-
-  * mapping to new hardware
-  * mapping to old-but-aged hardware
+The way in which we throttle I/O is by using the `blkio`...
 -->
+
+## Reproducing on Distinct Hardware
+
+So far we have discussed how we are able to reproduce the experiment 
+on the original hardware. As we have mentioned before, the challenge 
+is in reproducing experiments on different hardware. In order to 
+illustrate the benefits of using containers and their limiting 
+resource utilization capabilities, we executed the same experiment by 
+swapping 4 hard drives with newer models. The results are shown in 
+Figure 3.
+
+![Showing the effect of replacing 4 hard drives with newer 
+models.](/root/figures/ceph2.png)
+
+The reason for the change in results with respect to the first four 
+points of Figure 2 (above) is the following. Ceph issues two I/O calls 
+on each write request, one of them being asynchronous. The blkio 
+controller responsible for limiting I/O on block devices (which we 
+configure to 30MB/s) cannot throttle asynchronous I/O since this type 
+of requests go to a queue that is shared at the OS level (among all 
+containers). We empirically corroborated this by executing a small 
+microbenchmark using FIO that executed the same load (4MB files) on 
+the same two hard drives in question, but using direct I/O 
+exclusively. In this case, the performance corresponds to the 
+throttled 30 MB/s. We then executed a mixed workload of both direct 
+and async I/O requests and observed that the newer hard drive performs 
+better than the old one.
 
 # Discussion {#discussion}
 

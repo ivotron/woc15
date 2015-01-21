@@ -16,3 +16,6 @@
 [submodule "overleaf"]
 	path = overleaf
 	url = https://git.overleaf.com/2118302wbyxfr
+[submodule "ceph_osdi06"]
+	path = ceph_osdi06
+	url = git@github.com:ivotron/ceph_osdi06.git

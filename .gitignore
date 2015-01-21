@@ -7,3 +7,4 @@ bibtools
 bibfile
 latex-files
 .gitmodules
+pandoc.log
