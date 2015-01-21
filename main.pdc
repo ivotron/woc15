@@ -436,10 +436,10 @@ container management infrastructure to capture execution profiles with
 the purpose of making these available to experimental research 
 reviewers and readers. We illustrated the benefits of our hardware and 
 container execution profiling methodology by reproducing a previously 
-published experiment in distributed storage systems. We are currently 
-in the process of further testing these ideas on experiments from 
-other areas of systems research such as kernel development and network 
-systems.
+published experiment in the area of distributed storage systems. We 
+are currently in the process of further testing these ideas on 
+experiments from other areas of systems research such as kernel 
+development and network systems.
 
 <!--
 **Acknowledgements:** This work was partially supported by NSF grant 
