@@ -193,7 +193,7 @@ execution of micro-benchmarks to characterize the bare-metal
 performance of a machine). The container configuration corresponds to 
 the resources available to a container, such as number of CPUs and 
 total amount of memory. While the experiment runs, performance metrics 
-for the container can be obtained from in order to create an execution 
+for the container can be obtained in order to create an execution 
 profile.
 
 Using LXC as an example, we show in Figure 1 a monitoring daemon 
