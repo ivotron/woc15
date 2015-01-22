@@ -2,7 +2,7 @@
 title: "The Role of Container Technology in Reproducible Computer Systems Research"
 author:
   - name: "Ivo Jimenez, Carlos Maltzahn"
-    affiliation: "UC Santa Cruz"
+    affiliation: "University of California Santa Cruz"
     email: "`(ivo|carlosm)@cs.ucsc.edu`"
   - name: "Adam Moody, Kathryn Mohror"
     affiliation: "Lawrence Livermore National Laboratories"
@@ -14,17 +14,17 @@ author:
     affiliation: "University of Wisconsin-Madison"
     email: "`remzi@cs.wisc.edu`"
 abstract: |
-  Evaluating experimental results in the field of Computer Systems is 
+  Evaluating experimental results in the field of computer systems is 
   a challenging task, mainly due to the many changes in software and 
   hardware that computational environments go through. In this 
   position paper, we analyze salient features of container technology 
-  that, if leveraged correctly, can help reducing the complexity of 
+  that, if leveraged correctly, can help reduce the complexity of 
   reproducing experiments in systems research. We present a use case 
-  in the area of storage systems to illustrate the extensions that we 
-  envision, mainly in terms of container management infrastructure. We 
-  also discuss the benefits and limitations of using containers as a 
-  way of reproducing research in other areas of experimental systems 
-  research.
+  in the area of distributed storage systems to illustrate the 
+  extensions that we envision, mainly in terms of container management 
+  infrastructure. We also discuss the benefits and limitations of 
+  using containers as a way of reproducing research in other areas of 
+  experimental systems research.
 tags:
   - phdthesis
   - workshop-paper
@@ -41,25 +41,27 @@ documentclass: ieeetran
 # Introduction
 
 A key component of the scientific method is the ability to revisit and 
-replicate previous results. Registering information about an 
+replicate previous experiments. Registering information about an 
 experiment allows scientists to interpret and understand results, as 
-well as verifying that the experiment was performed according to 
+well as verify that the experiment was performed according to 
 acceptable procedures. Additionally, reproducibility plays a major 
-roll in education since the amount of information that a student has 
+role in education since the amount of information that a student has 
 to digest increases as the pace of scientific discovery accelerates. 
-By having repeatable experiments, a student can learn by looking at 
-provenance information, re-evaluate the questions that the original 
-experiment answered and thus "stand in the shoulder of giants".
+By having the ability to repeat experiments, a student can learn by 
+looking at provenance information, re-evaluate the questions that the 
+original experiment answered and thus "stand in the shoulder of 
+giants".
 
-In applied Computer Science an experiment is carried out in its 
-entirety by a computer. Repeating a result doesn't require a scientist 
-to rewrite a program, rather it entails obtaining the original program 
-and executing it (possibly in a distinct environment). Thus, in 
-principle, a well documented experiment should be repeatable 
-automatically (e.g. by typing `make`), however, this is not the case. 
-Today's computational environments are complex and accounting for all 
-possible effects of changes within and across systems is a challenging 
-task [@freire_computational_2012 ; @donoho_reproducible_2009].
+In applied computer science an experiment is carried out in its 
+entirety on a computer. Repeating an experiment doesn't require a 
+scientist to rewrite a program, rather it entails obtaining the 
+original program and executing it (possibly in a distinct 
+environment). Thus, in principle, a well documented experiment should 
+be repeatable automatically (e.g. by typing `make`); however, this is 
+not the case. Today's computational environments are complex and 
+accounting for all possible effects of changes within and across 
+systems is a challenging task [@freire_computational_2012 ; 
+@donoho_reproducible_2009].
 
 Version control systems (VCS) are sometimes used to address some of 
 these problems. By having a particular version ID for the software 
@@ -67,37 +69,36 @@ used for an article's experimental results, reviewers and readers can
 have access to the same codebase [@brown_how_2014]. However, 
 availability of the source code does not guarantee reproducibility 
 [@collberg_measuring_2014] since the code might not compile and, even 
-if compilable, the results might differ, in which case the differences 
+if compilable, the results might differ. In that case, the differences 
 have to be analyzed in order to corroborate the validity of the 
 original experiment.
 
 Additionally, reproducing experimental results when the underlying 
-hardware environment changes challenging mainly due to the inability 
-of predicting the effects of such changes in the outcome of an 
+hardware environment changes is challenging mainly due to the 
+inability to predict the effects of such changes in the outcome of an 
 experiment. A Virtual Machine (VM) can be used to partially address 
-this issue but the overheads associated in terms of performance (the 
-hypervisor "tax") and management (creating, storing and transferring 
-them) can be high and, in some fields of Computer Science such as 
-Computer Systems research, cannot be accounted easily [@clark_xen_2004].
+this issue but the overheads in terms of performance (the hypervisor 
+"tax") and management (creating, storing and transferring) can be high 
+and, in some fields of computer science such as systems research, 
+cannot be accounted easily [@clark_xen_2004].
 
-Operating-system-level virtualization [@soltesz_container-based_2007] 
-is a server virtualization method where the kernel of an operating 
-system allows for multiple isolated user space instances, instead of 
-just one. Such instances (often called containers, virtualization 
-engines (VE), virtual private servers (VPS), or jails) may look and 
-feel like a real server from the point of view of its owners and 
-users. In addition to isolation mechanisms, the kernel often provides 
-resource management features to limit the impact of one container's 
-activities on the other containers. Container technology is currently 
-employed as a way of reducing the complexity of software deployment 
-and portability of applications in cloud computing infrastructure. 
-Arguably, containers have taken the role that package management tools 
-had in the past, where they were used to control upgrades and keep 
-track of change in the dependencies of an application 
-[@di_cosmo_package_2008].
+OS-level virtualization [@soltesz_container-based_2007] is a server 
+virtualization method where the kernel of an operating system allows 
+for multiple isolated user space instances, instead of just one. Such 
+instances (often called containers, virtualization engines (VE), 
+virtual private servers (VPS), or jails) may look and feel like a real 
+server from the point of view of its owners and users. In addition to 
+isolation mechanisms, the kernel often provides resource management 
+features to limit the impact of one container's activities on the 
+other containers. Container technology is currently employed as a way 
+of reducing the complexity of software deployment and portability of 
+applications in cloud computing infrastructure. Arguably, containers 
+have taken the role that package management tools had in the past, 
+where they were used to control upgrades and keep track of change in 
+the dependencies of an application [@di_cosmo_package_2008].
 
 In this work, we make the case for containers as a way of tackling 
-some of the reproducibility problems in Computer Systems research. 
+some of the reproducibility problems in computer systems research. 
 Specifically, we propose to use the resource accounting and limiting 
 components of OS-level virtualization as a basis for creating 
 execution profiles of experiments that can be associated with results, 
@@ -125,10 +126,10 @@ related [work](#related) and [conclude](#conclusion).
 
 # Evaluation of Experimental Systems Research {#experiment}
 
-An experiment in systems research is composed by a triplet of \(1\) 
+An experiment in systems research is composed of a triplet of \(1\) 
 workload, (2) a specific system where the workload runs and \(3\) 
 results from a particular execution. Respective to this order is the 
-complexity associated to the evaluation of an experiment: obtaining 
+complexity associated with the evaluation of an experiment: obtaining 
 the exact same results is more difficult than just getting access to 
 the original workload. Thus, we can define a taxonomy to characterize 
 the reproducibility of experiments:
@@ -147,15 +148,15 @@ defines the IO patterns of the experiment. For example, if an
 experiment uses the [Flexible IO Tester][fio] (FIO), then the workload 
 is defined by the FIO input file.
 
-System reproducibility can be divided in software and hardware. The 
+System reproducibility can be divided into software and hardware. The 
 former corresponds to the entire software stack from the 
-firmware/kernel up to the libraries used by an experiment, whereas the 
-latter comprises the set of hardware devices involved in the 
-experiment such as specific the CPU model, storage drives or network 
-cards that an experiment ran on.
+firmware/kernel up to the libraries used by an experiment. The latter 
+comprises the set of hardware devices involved in the experiment such 
+as the specific CPU model, storage drives or network cards on which 
+the experiment ran on.
 
 Reproducing results does not necessarily imply the regeneration of the 
-exact same measurements, instead it entails validating the results by 
+exact same measurements; instead it entails validating the results by 
 checking how close (in shape or trends) to the original experiment 
 they are. Given this, evaluating an experiment can be a subjective 
 task. We propose metrics within the domain of storage systems in terms 
@@ -168,28 +169,33 @@ while comparing results.
 Current implementations of OS-level virtualization (e.g. [LXC]  or 
 [OpenVZ]) include an accounting component that keeps track of the 
 resource utilization of a container over time. In general, this module 
-can account for CPU, memory, network and IO. By periodically checking 
-and recording these metrics while an experiment runs, we can obtain a 
-profile of its execution. This profile is the signature of the 
-experiment on the particular hardware that it was executed on. The 
+can account for CPU, memory, network and I/O usage. By periodically 
+checking and recording these metrics while an experiment runs, we can 
+obtain a profile of its execution. This profile is the signature of 
+the experiment on the particular hardware on which it executed. The 
 challenge is to recreate results on distinct hardware. By having the 
-performance profile along with the performance profile of the 
-underlying hardware, we can provide enough information for researches 
-to use while evaluating a particular result. In concrete, we propose 
-the following mapping methodology:
+execution profile of an experiment along with the performance profile 
+of the underlying hardware, we can provide enough information for 
+researchers to use while evaluating a particular result. In concrete, 
+when trying to reproduce an experiment on a system $B$ that originally 
+ran on $A$, we propose the following mapping methodology:
 
-  1. Obtain the profile of the original hardware
-  2. Obtain the resource utilization configuration of each container
-  3. Obtain the profile of the new hardware
-  4. Generate a configuration for the new hardware based on 2-4
+  1. Obtain the characteristics and performance profile of $A$.
+  2. Obtain the configuration of every container involved in the 
+     experiment, along with their execution profile.
+  3. Obtain the characteristics and performance profile of $B$.
+  4. Generate a configuration for the experiment w.r.t. $B$ by 
+     recreating the resource allocation that the experiment had when 
+     it ran on $A$.
 
-The hardware profile is composed of static (e.g. the output of `lshw`) 
-and dynamic information (e.g. the execution of micro-benchmarks to 
-characterize the bare-metal performance of a machine). Using LXC as an 
-example, we show in Figure 1 a monitoring daemon running in as a 
-userspace process in the host. This process periodically dumps the 
-content of the `cgroups` pseudo-filesystem in order to capture the 
-runtime metrics of the containers running in the system.
+The hardware performance profile is composed of static (e.g. the 
+hardware characteristics as seen by `lshw`) and dynamic information 
+(e.g. the execution of micro-benchmarks to characterize the bare-metal 
+performance of a machine). Using LXC as an example, we show in Figure 
+1 a monitoring daemon running as a userspace process in the host. This 
+process periodically dumps the content of the `cgroups` 
+pseudo-filesystem in order to capture the runtime metrics of the 
+containers running in the system.
 
 ![A userpace process running alongside the container manager (LXC) 
 that periodically probes the statistics of containers in order to 
@@ -227,21 +233,21 @@ reason for selecting this paper is (1) our familiarity with these
 experiments makes it easier to reason about contextual information not 
 necessarily available directly from the paper and (2) the original 
 hardware is still available in our laboratory. Each node in the system 
-consist of an 2-core 2212 AMD Opteron @2.0GHz, 8GB of RAM, 1GbE NIC 
-and 500GB Seagate Barracuda ES 250GB hard drives. We created a 
+consist of a 2-core 2212 AMD Opteron @2.0GHz, 8GB of RAM, 1GbE NIC and 
+500GB Seagate Barracuda ES 250GB hard drives. We created a 
 containerized version of the experiment using the 0.87 branch of Ceph. 
 We use docker 1.3.3 and LXC 1.0.6 running on Ubuntu 12.04 hosts 
 (3.13.0-43 x86_64 kernel).
 
-The experiments on Section 6.1 show the ability of Ceph to saturate 
+The experiments in Section 6.1 show the ability of Ceph to saturate 
 disk evenly among the drives of the cluster. Figures 5-7 from the 
 original paper show per-OSD performance as the object size varies from 
 4 KB to 4 MB. In our case we focus on reproducing the scalability 
 experiment of Section 6.1.3 (Figure 8), which uses 4 MB objects, to 
-avoid random IO noise from the hard drives. We ignore the performance 
-of `hash` data distribution and fix the number of placement groups to 
-32K, thus we can meaningful comparisons against the red solid-dotted 
-line in Figure 8.
+minimize random IO noise from the hard drives. We ignore the 
+performance of the `hash` data distribution and fix the number of 
+placement groups to 32K, thus we meaningfully compare against the red 
+solid-dotted line in Figure 8.
 
 The original scalability experiment ran with 20 clients per node on 20 
 nodes (400 clients total) and varies the number of OSDs from 2-26 in 
@@ -249,9 +255,9 @@ increments of 2. Every node was connected via 1 GbE link, so the
 experiment theoretical upper bound is 2GB/s (when there is enough 
 capacity of the OSD cluster to have 20 1Gb connections) or 
 alternatively when the connection limit of the switch is reached. The 
-paper experiments where executed on a Netgear switch which has a 
+paper experiments were executed on a Netgear switch. This device has a 
 capacity of approximately 14 GbE in _real_ total traffic (from a 20 
-advertised), which corresponds to the 24 * 58 = 1400 MB/s combined 
+advertised), corresponding to the 24 * 58 = 1400 MB/s combined 
 throughput shown in the original paper.
 
 We scaled down the experiment by reducing the number of clients nodes 
@@ -290,9 +296,8 @@ So far we have discussed how we are able to reproduce the experiment
 on the original hardware. But, as we have mentioned before, the 
 challenge is in reproducing experiments on different hardware. In 
 order to illustrate the benefits of using containers and their 
-resource utilization limiting capabilities, we executed the same 
-experiment by swapping 4 hard drives with newer models. The results 
-are shown in Figure 3.
+limiting capabilities, we executed the same experiment by swapping 4 
+hard drives with newer models. The results are shown in Figure 3.
 
 ![Showing the effect of replacing 4 hard drives with newer models. Old 
 hard drives are the same used in the previous figure and correspond to 
