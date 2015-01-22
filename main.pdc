@@ -180,10 +180,10 @@ researchers to use while evaluating a particular result. In concrete,
 when trying to reproduce an experiment on a system $B$ that originally 
 ran on $A$, we propose the following mapping methodology:
 
-  1. Obtain the characteristics and performance profile of $A$.
+  1. Obtain the performance profile of $A$.
   2. Obtain the configuration of every container involved in the 
      experiment, along with their execution profile.
-  3. Obtain the characteristics and performance profile of $B$.
+  3. Obtain the performance profile of $B$.
   4. Generate a configuration for the experiment w.r.t. $B$ by 
      recreating the resource allocation that the experiment had when 
      it ran on $A$.
@@ -191,11 +191,16 @@ ran on $A$, we propose the following mapping methodology:
 The hardware performance profile is composed of static (e.g. the 
 hardware characteristics as seen by `lshw`) and dynamic information 
 (e.g. the execution of micro-benchmarks to characterize the bare-metal 
-performance of a machine). Using LXC as an example, we show in Figure 
-1 a monitoring daemon running as a userspace process in the host. This 
-process periodically dumps the content of the `cgroups` 
-pseudo-filesystem in order to capture the runtime metrics of the 
-containers running in the system.
+performance of a machine). The container configuration corresponds to 
+the resources available to a container, such as number of CPUs and 
+total amount of memory. While the experiment runs, performance metrics 
+can be obtained in order to obtain the execution profile for a 
+container.
+
+Using LXC as an example, we show in Figure 1 a monitoring daemon 
+running as a userspace process in the host. This process periodically 
+dumps the content of the `cgroups` pseudo-filesystem in order to 
+capture the runtime metrics of containers running in the system.
 
 ![A userpace process running alongside the container manager (LXC) 
 that periodically probes the statistics of containers in order to 
@@ -225,7 +230,7 @@ extended to incorporate this profiling functionality.
 
 # Use Case: Scalability Experiments of Ceph OSDI '06 {#case}
 
-To illustrate the utility of having execution and base hardware 
+To illustrate the utility of having execution and hardware performance 
 profiles, we take the Ceph OSDI '06 paper [@weil_ceph_2006] and 
 reproduce one of its experiments. In particular, we look at the 
 scalability experiment from the data performance section (6.1). The 
@@ -292,12 +297,25 @@ atomicity/durability capability.
 
 ## Reproducing on Different Hardware
 
-So far we have discussed how we are able to reproduce the experiment 
-on the original hardware. But, as we have mentioned before, the 
-challenge is in reproducing experiments on different hardware. In 
-order to illustrate the benefits of using containers and their 
-limiting capabilities, we executed the same experiment by swapping 4 
-hard drives with newer models. The results are shown in Figure 3.
+So far we have discussed how to reproduce an experiment on the 
+original hardware. But, as we have mentioned before, the challenge is 
+in reproducing experiments on different hardware. Having the 
+experiment implemented in containers allows us to swap components of 
+the underlying hardware and repeat the experiment easily; after all, 
+this is one of the ultimate goals of virtualization, and containers 
+aim at doing it with minimal overhead. Our interest is in measuring 
+the effects that replacing distinct components has on experimental 
+results. Our conjecture is that, for many cases, the methodology 
+defined in the previous section will allow to reproduce results on 
+distinct hardware. As part of our efforts, we are working in precisely 
+characterizing the cases for which our methodology will work and those 
+for which it won't.
+
+Thus, our initial goal is to empirically test the repercussions of 
+replacing network, CPU, storage and memory devices. We present now 
+preliminary results on the outcome of swapping distinct storage 
+drives. We executed the scalability experiment, swapping 4 old hard 
+drives with newer models. The results are shown in Figure 3.
 
 ![Showing the effect of replacing 4 hard drives with newer models. Old 
 hard drives are the same used in the previous figure and correspond to 
@@ -306,12 +324,12 @@ hard drives correspond to 500GB Western Digital Re (WD5003ABYZ)
 drives.](/root/figures/ceph2.png)
 
 The reason for the change in results with respect to the first four 
-points of Figure 2 (above) is the following. As mentioned earlier, 
-Ceph issues two I/O calls on each write request, one of them being 
-asynchronous. The `blkio` controller responsible for limiting I/O on 
-block devices (which we configure to 30MB/s) cannot throttle 
-asynchronous I/O operations since this type of requests go to a queue 
-that is shared system-wide by all containers running in the host. We 
+points of Figure 2 is the following. As mentioned earlier, Ceph issues 
+two I/O calls on each write request, one of them being asynchronous. 
+The cgroups `blkio` controller responsible for limiting I/O on block 
+devices (which we configure to 30MB/s) cannot throttle asynchronous 
+I/O operations since this type of requests go to a queue that is 
+shared at the system level by all containers running in the host. We 
 empirically corroborated this by executing a small microbenchmark 
 using FIO that executed the same load (4MB files) on the two hard 
 drives in question, but using direct I/O exclusively. In this case, 
@@ -327,9 +345,9 @@ as general reproducibility guidelines when working with containers.
 
 ## Cataloging Experiments
 
-By storing profiles of experiments, we can create categories of 
-container metrics that describe in a high-level what the experiment's 
-goal is, for example:
+By storing performance profiles of experiments and associated 
+hardware, we can create categories of container metrics that describe 
+in a high-level what the experiment's goal is, for example:
 
   * In-memory only
   * Storage intensive
@@ -337,7 +355,7 @@ goal is, for example:
   * CPU intensive
   * 50% of caching effects
 
-Assume there is a central repository of experiments such as CloudLab 
+Assuming there is a central repository of experiments such as CloudLab 
 [@ricci_introducing_2014]. A scientist wanting to test new ideas in 
 systems research can look for experiments in this database by issuing 
 queries with a particular category in mind.
