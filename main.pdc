@@ -422,15 +422,17 @@ experience in implementing experiments in containers:
     results (i.e. add it to the commit that a paper's results are 
     based on).
 
+We followed this guidelines for this paper. All the resources needed 
+to generate its content (except hardware) can be found in our github 
+[account](https://github.com/ivotron/woc_2015#submission).
+
 # Related Work {#related}
 
 The challenging task of evaluating experimental results in applied 
-computer science has been long recognized [@ignizio_establishment_1971 
-; @ignizio_validating_1973 ; @crowder_reporting_1979]. This issue has 
-recently received a significant amount of attention from the 
-computational research community [@freire_provenance_2008 ; 
-@freire_computational_2012 ; @stodden_implementing_2014 ; 
-@neylon_changing_2012 ; @cheney_provenance_2009 ; 
+computer science has been long recognized 
+[@ignizio_establishment_1971]. This issue has recently received a 
+significant amount of attention from the computational research 
+community [@freire_computational_2012 ; @neylon_changing_2012 ; 
 @leveqije_reproducible_2012], where the focus is more on numerical 
 reproducibility rather than performance evaluation. Similarly, efforts 
 such as _The Recomputation Manifesto_ [@gent_recomputation_2013] and 
