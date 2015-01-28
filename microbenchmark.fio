@@ -1,0 +1,25 @@
+; two threads, one seq-sync, other rand-async
+;
+; first thread tries to simulate writing to a journal
+;
+; second to simulate writing data to a backend
+
+[global]
+rw=randread
+size=256m
+directory=/tmp/fio-testing/data
+ioengine=libaio
+iodepth=4
+invalidate=1
+direct=1
+
+[bgwriter]
+rw=randwrite
+iodepth=32
+
+[bgupdater]
+rw=randrw
+iodepth=16
+direct=0
+;thinktime=40
+size=32m
