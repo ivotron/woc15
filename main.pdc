@@ -3,16 +3,16 @@ title: "The Role of Container Technology in Reproducible Computer Systems Resear
 author:
   - name: "Ivo Jimenez, Carlos Maltzahn"
     affiliation: "University of California Santa Cruz"
-    email: "`(ivo|carlosm)@cs.ucsc.edu`"
+    email: "`[ivo|carlosm]@cs.ucsc.edu`"
   - name: "Adam Moody, Kathryn Mohror"
     affiliation: "Lawrence Livermore National Laboratories"
-    email: "`(moody11|kathryn)@llnl.gov`"
+    email: "`[moody11|kathryn]@llnl.gov`"
   - name: "Jay Lofstead"
     affiliation: "Sandia National Laboratories"
     email: "`gflofst@sandia.gov`"
   - name: "Remzi Arpaci-Dusseau, Andrea Arpaci-Dusseau"
     affiliation: "University of Wisconsin-Madison"
-    email: "`(remzi|dusseau)@cs.wisc.edu`"
+    email: "`[remzi|dusseau]@cs.wisc.edu`"
 abstract: |
   Evaluating experimental results in the field of computer systems is 
   a challenging task, mainly due to the many changes in software and 
@@ -35,6 +35,7 @@ numbersections: true
 links-as-notes: true
 substitute-hyperref: true
 documentclass: ieeetran
+classoption: conference
 ---
 
 # Introduction
@@ -296,11 +297,9 @@ MB/s of net I/O utilization since the current version of Ceph issues
 two I/O calls on each write request, one to the write-ahead log and 
 another one to the data backend. The original experiments used a 
 prototype version of Ceph that didn't include this 
-atomicity/durability feature. Figure 2 also shows an extrapolation of 
-the original data to our reproducible setting. This line is obtained 
-by obtaining the 58 MB/s and roughly dividing it by 2 to reflect the 
-doubled I/O operation of our experiment. The original experiment show 
-better scalability behavior due to newer and more stable hardware.
+atomicity/durability feature. Figure 2 also shows a projection of the 
+original data to our setting. The original experiment show better 
+scalability behavior due to newer and more stable hardware.
 
 ## Reproducing Results on Different Hardware
 
@@ -428,7 +427,7 @@ experience in implementing experiments in containers:
 
 We followed this guidelines for this paper. All the resources needed 
 to generate its content can be found in our github 
-[account](https://github.com/ivotron/woc_2015#submission).
+[account](https://github.com/ivotron/woc_2015#camera-ready).
 
 # Related Work {#related}
 
