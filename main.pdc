@@ -48,7 +48,7 @@ role in education since the amount of information that a student has
 to digest increases as the pace of scientific discovery accelerates. 
 By having the ability to repeat experiments, a student can learn by 
 looking at provenance information, re-evaluate the questions that the 
-original experiment answered and thus "stand in the shoulder of 
+original experiment answered and thus "stand on the shoulder of 
 giants".
 
 In applied computer science an experiment is carried out in its 
@@ -65,7 +65,7 @@ systems is a challenging task [@freire_computational_2012 ;
 Version control systems (VCS) are sometimes used to address some of 
 these problems. By having a particular version ID for the software 
 used for an article's experimental results, reviewers and readers can 
-have access to the same codebase [@brown_how_2014]. However, 
+have access to the same code base [@brown_how_2014]. However, 
 availability of the source code does not guarantee reproducibility 
 [@collberg_measuring_2014] since the code might not compile and, even 
 if compilable, the results might differ. In that case, the differences 
@@ -79,7 +79,7 @@ experiment. A Virtual Machine (VM) can be used to partially address
 this issue but the overheads in terms of performance (the hypervisor 
 "tax") and management (creating, storing and transferring) can be high 
 and, in some fields of computer science such as systems research, 
-cannot be accounted easily [@clark_xen_2004].
+cannot be accounted for easily [@clark_xen_2004].
 
 OS-level virtualization [@soltesz_container-based_2007] is a server 
 virtualization method where the kernel of an operating system allows 
@@ -143,16 +143,16 @@ the reproducibility of experiments:
 
 In storage systems research, workload reproducibility is achieved by 
 getting access to the configuration of the benchmarking tool that 
-defines the IO patterns of the experiment. For example, if an 
-experiment uses the [Flexible IO Tester][fio] (FIO), then the workload 
-is defined by the FIO input file.
+defines the I/O patterns of the experiment. For example, if an 
+experiment uses the [Flexible I/O Tester][fio] (FIO), then the 
+workload is defined by the FIO input file.
 
 System reproducibility can be divided into software and hardware. The 
 former corresponds to the entire software stack from the 
 firmware/kernel up to the libraries used by an experiment. The latter 
 comprises the set of hardware devices involved in the experiment such 
 as the specific CPU model, storage drives or network cards on which 
-the experiment ran on.
+the experiment ran.
 
 Reproducing results does not necessarily imply the regeneration of the 
 exact same measurements; instead it entails validating the results by 
@@ -160,8 +160,7 @@ checking how close (in shape or trends) to the original experiment
 they are. Given this, evaluating an experiment can be a subjective 
 task. We propose metrics within the domain of storage systems in terms 
 of resource utilization, specifically memory, CPU, and bandwidth, as a 
-way of having objective metrics that do not give rise to ambiguity 
-while comparing results.
+to provide objective standards for unambiguously comparing results.
 
 # Containers For Reproducible Systems Research {#extension}
 
@@ -210,14 +209,14 @@ following schema:
 
 `(IMG | EX_ID | HW_PROFILE | CGROUPS | EX_PROFILE)`
 
-Where `IMG` points to the image where the container was instantiated 
-from. `EXE_ID` corresponds to a particular execution of the experiment 
-with associated timestamps. `HW_PROFILE`, as mentioned above, captures 
-the bare-metal performance of the machine where the container 
-executes. `CGROUPS` is the configuration in terms of control groups 
-for the distinct subsystems (CPU, memory, network and IO). 
-`EX_PROFILE` is the execution profile for a particular execution, i.e. 
-there is one profile for every entry (one for each `EX_ID`).
+Where `IMG` points to the image from where the container was 
+instantiated. `EXE_ID` corresponds to a particular execution of the 
+experiment with associated timestamps. `HW_PROFILE`, as mentioned 
+above, captures the bare-metal performance of the machine where the 
+container executes. `CGROUPS` is the configuration in terms of control 
+groups for the distinct subsystems (CPU, memory, network and I/O). 
+`EX_PROFILE` is the profile for a particular execution; i.e. there is 
+one profile for every entry (one for each `EX_ID`).
 
 The profile database can be located remotely in a central repository 
 that serves as the hub for managing experiments in a distributed 
@@ -244,22 +243,22 @@ hard drives. We created a containerized version of the experiment
 using the 0.87 branch of Ceph. We use docker 1.3.3 and LXC 1.0.6 
 running on Ubuntu 12.04 hosts (3.13.0-43 x86_64 kernel).
 
-The experiments in Section 6.1 of the original paper show the ability 
-of Ceph to saturate disk evenly among the drives of the cluster. 
-Figures 5-7 from the original paper show per-OSD performance as the 
-object size varies from 4 KB to 4 MB. In our case we focus on 
-reproducing the scalability experiment of Section 6.1.3 (Figure 8), 
-which uses 4 MB objects, to minimize random IO noise from the hard 
-drives. We ignore the performance of the `hash` data distribution and 
-fix the number of placement groups to 32K, thus we meaningfully 
-compare against the red solid-dotted line in Figure 8.
+The experiments in Section 6.1 of the original paper showed the 
+ability of Ceph to saturate disk evenly among the drives of the 
+cluster. Figures 5-7 from the original paper showed per-OSD 
+performance as the object size varied from 4 KB to 4 MB. In our case 
+we focus on reproducing the scalability experiment of Section 6.1.3 
+(Figure 8), which used 4 MB objects, to minimize random I/O noise from 
+the hard drives. We ignore the performance of the `hash` data 
+distribution and fix the number of placement groups to 32K, thus we 
+meaningfully compare against the red solid-dotted line in Figure 8.
 
 The original scalability experiment ran with 20 clients per node on 20 
-nodes (400 clients total) and varies the number of OSDs from 2-26 in 
+nodes (400 clients total) and varied the number of OSDs from 2-26 in 
 increments of 2. Every node was connected via 1 GbE link, so the 
-experiment theoretical upper bound is 2GB/s (when there is enough 
+experiment theoretical upper bound was 2GB/s (when there was enough 
 capacity of the OSD cluster to have 20 1Gb connections) or 
-alternatively when the connection limit of the switch is reached. The 
+alternatively when the connection limit of the switch was reached. The 
 paper experiments were executed on a Netgear switch. This device has a 
 capacity of approximately 14 GbE in _real_ total traffic (from a 20 
 advertised), corresponding to the 24 * 58 = 1400 MB/s combined 
@@ -268,21 +267,22 @@ throughput shown in the original paper.
 ![Reproducing a scaled-down version of the original OSDI '06 
 scalability experiment (Figure 8). The y-axis represents average 
 throughput, as seen by the client. They x-axis corresponds to the size 
-of the cluster (in number of object storage devices (OSD). The dot 
-corresponds to the average of 10 executions of the experiment. It also 
-represents the overall performance of the hard disks in the cluster. 
-Standard error bars show low variability.](/root/figures/ceph1.png)
+of the cluster (in number of object storage devices (OSD). The square 
+marker corresponds to the average of 10 executions of the experiment. 
+It also represents the overall performance of the hard disks in the 
+cluster. The line with triangle markers projects the original results 
+to our setting.](/root/figures/ceph1.png)
 
 We scaled down the experiment by reducing the number of clients nodes 
 to 1 (16 clients). This means that our network upper bound is 110 MB/s 
 (the capacity of the 1GbE link from the client to the switch). We 
-throttle IO at 30 MB/s (vs. 58 MB/s of the original paper), so this is 
-our scaling unit (per-OSD increment). The reason for throttling at 30 
-MB/s is that, over time, the Seagate disks have aged (they are 10 
+throttle I/O at 30 MB/s (vs. 58 MB/s of the original paper), so this 
+is our scaling unit (per-OSD increment). The reason for throttling at 
+30 MB/s is that, over time, the Seagate disks have aged (they are 10 
 years old!) and overall performance among the hard drives of our 
 cluster is different from the ~58 MB/s observed in the original paper. 
 In order to amortize, we had to take the lowest common denominator 
-which in this case is 30 MB/s. We throttle IO by configuring Ceph 
+which in this case is 30 MB/s. We throttle I/O by configuring Ceph 
 containers with the control group `blkio.throttle.write_bps_device` 
 directive. Figure 2 shows results of this scaled-down, throttled 
 version of the scalability experiment. An open question is to 
@@ -294,9 +294,13 @@ We see that Ceph scales linearly with the number of OSDs, up to the
 point where we saturate the 1GbE link. We note that we don't see 30 
 MB/s of net I/O utilization since the current version of Ceph issues 
 two I/O calls on each write request, one to the write-ahead log and 
-another one to the data backend. The original experiments were using a 
+another one to the data backend. The original experiments used a 
 prototype version of Ceph that didn't include this 
-atomicity/durability feature.
+atomicity/durability feature. Figure 2 also shows an extrapolation of 
+the original data to our reproducible setting. This line is obtained 
+by obtaining the 58 MB/s and roughly dividing it by 2 to reflect the 
+doubled I/O operation of our experiment. The original experiment show 
+better scalability behavior due to newer and more stable hardware.
 
 ## Reproducing Results on Different Hardware
 
@@ -423,7 +427,7 @@ experience in implementing experiments in containers:
     based on).
 
 We followed this guidelines for this paper. All the resources needed 
-to generate its content (except hardware) can be found in our github 
+to generate its content can be found in our github 
 [account](https://github.com/ivotron/woc_2015#submission).
 
 # Related Work {#related}
