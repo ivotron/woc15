@@ -1,18 +1,18 @@
 ---
 title: "The Role of Container Technology in Reproducible Computer Systems Research"
 author:
-  - name: "Ivo Jimenez, Carlos Maltzahn"
-    affiliation: "University of California Santa Cruz"
-    email: "`[ivo|carlosm]@cs.ucsc.edu`"
-  - name: "Adam Moody, Kathryn Mohror"
-    affiliation: "Lawrence Livermore National Laboratories"
-    email: "`[moody11|kathryn]@llnl.gov`"
+  - name: "Ivo Jimenez and Carlos Maltzahn"
+    affiliation: "_University of California Santa Cruz_"
+    email: "`{ivo,carlosm}@cs.ucsc.edu`"
+  - name: "Adam Moody and Kathryn Mohror"
+    affiliation: "_Lawrence Livermore National Laboratories_"
+    email: "`{moody11,kathryn}@llnl.gov`"
   - name: "Jay Lofstead"
-    affiliation: "Sandia National Laboratories"
+    affiliation: "_Sandia National Laboratories_"
     email: "`gflofst@sandia.gov`"
-  - name: "Remzi Arpaci-Dusseau, Andrea Arpaci-Dusseau"
-    affiliation: "University of Wisconsin-Madison"
-    email: "`[remzi|dusseau]@cs.wisc.edu`"
+  - name: "Remzi Arpaci-Dusseau and Andrea Arpaci-Dusseau"
+    affiliation: "_University of Wisconsin-Madison_"
+    email: "`{remzi,dusseau}@cs.wisc.edu`"
 abstract: |
   Evaluating experimental results in the field of computer systems is 
   a challenging task, mainly due to the many changes in software and 
@@ -32,10 +32,11 @@ tags:
 category: labnotebook
 layout: paper
 numbersections: true
-links-as-notes: true
 substitute-hyperref: true
+links-as-notes: true
 documentclass: ieeetran
 classoption: conference
+fontfamily: times
 ---
 
 # Introduction
@@ -63,7 +64,7 @@ accounting for all possible effects of changes within and across
 systems is a challenging task [@freire_computational_2012 ; 
 @donoho_reproducible_2009].
 
-Version control systems (VCS) are sometimes used to address some of 
+Version-control systems (VCS) are sometimes used to address some of 
 these problems. By having a particular version ID for the software 
 used for an article's experimental results, reviewers and readers can 
 have access to the same code base [@brown_how_2014]. However, 
@@ -159,9 +160,13 @@ Reproducing results does not necessarily imply the regeneration of the
 exact same measurements; instead it entails validating the results by 
 checking how close (in shape or trends) to the original experiment 
 they are. Given this, evaluating an experiment can be a subjective 
-task. We propose metrics within the domain of storage systems in terms 
-of resource utilization, specifically memory, CPU, and bandwidth, as a 
-to provide objective standards for unambiguously comparing results.
+task. If our aim is to elevate our discipline to the same rank of 
+other experimental sciences, evaluation of results should never be 
+subjective. In systems research, result reproducibility depends on the 
+particular goals of the experiment; within the domain of storage 
+systems, we propose to evaluate results based on resource utilization 
+metrics, specifically memory, CPU, and I/O bandwidth, to provide 
+objective standards for unambiguously comparing results.
 
 # Containers For Reproducible Systems Research {#extension}
 
@@ -187,28 +192,29 @@ mapping methodology:
      recreating the resource allocation that the experiment had when 
      it ran on $A$.
 
-The hardware profile is composed of static (e.g. the hardware 
-characteristics as seen by `lshw`) and dynamic information (e.g. the 
-execution of micro-benchmarks to characterize the bare-metal 
-performance of a machine). The container configuration corresponds to 
-the resources available to a container, such as number of CPUs and 
-total amount of memory. While the experiment runs, performance metrics 
-for the container can be obtained in order to create an execution 
-profile.
-
 Using LXC as an example, we show in Figure 1 a monitoring daemon 
-running as a userspace process in the host. This process periodically 
-dumps the content of the `cgroups` pseudo-filesystem in order to 
-capture the runtime metrics of containers running in the system.
+running as a userspace process in the host that implements the process 
+described above.
 
 ![A userpace process running alongside the container execution engine 
 (LXC) that periodically probes the statistics of containers in order 
-to obtain an execution profile.](/root/figures/monitor.png)
+to obtain an execution profile.](figures/monitor.png)
 
-An alternative for structuring this information is by defining the 
-following schema:
+The hardware profile is composed of static (e.g. the hardware 
+characteristics as seen by `lshw`) and dynamic information (e.g. the 
+results of micro-benchmarks that characterize the bare-metal 
+performance of a machine). The container configuration corresponds to 
+the host's resources available to a container, such as number of CPUs 
+and total amount of memory. While the experiment runs, performance 
+metrics for the container can be obtained in order to create an 
+execution profile.
 
-`(IMG | EX_ID | HW_PROFILE | CGROUPS | EX_PROFILE)`
+The monitoring process periodically dumps the content of the `cgroups` 
+pseudo-filesystem in order to capture the runtime metrics of 
+containers running in the system. An alternative for structuring this 
+information is by defining the following schema:
+
+` (IMG|EX_ID|HW_PROFILE|CGROUPS|EX_PROFILE)`
 
 Where `IMG` points to the image from where the container was 
 instantiated. `EXE_ID` corresponds to a particular execution of the 
@@ -235,24 +241,41 @@ To illustrate the utility of having execution and hardware profiles,
 we take the Ceph OSDI '06 paper [@weil_ceph_2006] and reproduce one of 
 its experiments. In particular, we look at the scalability experiment 
 from the data performance section (6.1). The reason for selecting this 
-paper is (1) our familiarity with these experiments makes it easier to 
-reason about contextual information not necessarily available directly 
-from the paper and (2) the original hardware is still available in our 
-laboratory. Each node in the system consist of a 2-core 2212 AMD 
-Opteron @2.0GHz, 8GB of RAM, 1GbE NIC and 250GB Seagate Barracuda ES 
-hard drives. We created a containerized version of the experiment 
-using the 0.87 branch of Ceph. We use docker 1.3.3 and LXC 1.0.6 
-running on Ubuntu 12.04 hosts (3.13.0-43 x86_64 kernel).
+paper is that we are familiar with these experiments. This makes it 
+easier to reason about contextual information not necessarily 
+available directly from the paper.
 
 The experiments in Section 6.1 of the original paper showed the 
 ability of Ceph to saturate disk evenly among the drives of the 
 cluster. Figures 5-7 from the original paper showed per-OSD 
-performance as the object size varied from 4 KB to 4 MB. In our case 
-we focus on reproducing the scalability experiment of Section 6.1.3 
-(Figure 8), which used 4 MB objects, to minimize random I/O noise from 
-the hard drives. We ignore the performance of the `hash` data 
-distribution and fix the number of placement groups to 32K, thus we 
-meaningfully compare against the red solid-dotted line in Figure 8.
+performance as the object size varied from 4 KB to 4 MB. Results of 
+the scalability experiment are presented in Section 6.1.3 of the Ceph 
+paper (Figure 8 on the original paper; reprinted below in Figure 2). 
+The goal of this experiment is to show that Ceph scales linearly with 
+the number of storage nodes, up to the point where the network switch 
+is saturated. This linear scalability is our reproducibility 
+evaluation criteria for this specific experiment.
+
+![Reprinting Figure 8 from the original paper. The original caption 
+reads: "_OSD write performance scales linearly with the 
+size of the OSD cluster until the switch is saturated at 24 OSDs. 
+CRUSH and hash performance improves when more PGs lower variance in 
+OSD utilization_."](figures/figure8.png)
+
+The experiment used 4 MB objects to minimize random I/O noise from the 
+hard drives. We ignore the performance of the `hash` data distribution 
+and increase the number of placement groups to 128 per node, thus we 
+meaningfully compare against the red solid-dotted line in Figure 8 of 
+the Ceph paper.
+
+## Reproducing Results on Similar Hardware
+
+A subset of the hardware used for the Ceph experiments is still 
+available in our laboratory. Each node in the system consist of a 
+2-core 2212 AMD Opteron @2.0GHz, 8GB of RAM, 1GbE NIC and 250GB 
+Seagate Barracuda ES hard drives. We created a containerized version 
+of the experiment using the 0.87 branch of Ceph. We use docker 1.3.3 
+and LXC 1.0.6 running on Ubuntu 12.04 hosts (3.13.0-43 x86_64 kernel).
 
 The original scalability experiment ran with 20 clients per node on 20 
 nodes (400 clients total) and varied the number of OSDs from 2-26 in 
@@ -265,41 +288,50 @@ capacity of approximately 14 GbE in _real_ total traffic (from a 20
 advertised), corresponding to the 24 * 58 = 1400 MB/s combined 
 throughput shown in the original paper.
 
-![Reproducing a scaled-down version of the original OSDI '06 
-scalability experiment (Figure 8). The y-axis represents average 
-throughput, as seen by the client. They x-axis corresponds to the size 
-of the cluster (in number of object storage devices (OSD). The square 
-marker corresponds to the average of 10 executions of the experiment. 
-It also represents the overall performance of the hard disks in the 
-cluster. The line with triangle markers projects the original results 
-to our setting.](/root/figures/ceph1.png)
-
-We scaled down the experiment by reducing the number of clients nodes 
-to 1 (16 clients). This means that our network upper bound is 110 MB/s 
-(the capacity of the 1GbE link from the client to the switch). We 
-throttle I/O at 30 MB/s (vs. 58 MB/s of the original paper), so this 
-is our scaling unit (per-OSD increment). The reason for throttling at 
-30 MB/s is that, over time, the Seagate disks have aged (they are 10 
+We scaled down the experiment by reducing the number of client nodes 
+to 1 (running 16 client threads). This means that our network upper 
+bound is approximately 110 MB/s (the capacity of the 1GbE link from 
+the client to the switch). We throttle I/O at 30 MB/s, so this is our 
+scaling unit (the per-OSD increment). The reason for throttling at 30 
+MB/s is that, over time, the Seagate disks have aged (they are 10 
 years old!) and overall performance among the hard drives of our 
 cluster is different from the ~58 MB/s observed in the original paper. 
 In order to amortize, we had to take the lowest common denominator 
-which in this case is 30 MB/s. We throttle I/O by configuring Ceph 
+which in this case is 30 MB/s. We throttle I/O by configuring LXC 
 containers with the control group `blkio.throttle.write_bps_device` 
-directive. Figure 2 shows results of this scaled-down, throttled 
+directive. Figure 3 shows results of this scaled-down, throttled 
 version of the scalability experiment. An open question is to 
 determine if the process of scaling-down and throttling resources can 
 be automated, given the profile repository described in the previous 
 section.
 
+![Reproducing a scaled-down version of the original OSDI '06 
+scalability experiment. The y-axis represents average throughput, as 
+seen by the client. They x-axis corresponds to the size of the cluster 
+(in number of object storage devices (OSD). The square marker 
+corresponds to the average of 10 executions. The line with triangle 
+markers projects the original results to our setting. This projection 
+is obtained by having the 58 MB/s divided by 2 (to reflect the doubled 
+I/O operation of the current Ceph version), i.e. 24 MB/s as the 
+scalability unit of the original experiment.](figures/ceph1.png)
+
 We see that Ceph scales linearly with the number of OSDs, up to the 
-point where we saturate the 1GbE link. We note that we don't see 30 
-MB/s of net I/O utilization since the current version of Ceph issues 
-two I/O calls on each write request, one to the write-ahead log and 
-another one to the data backend. The original experiments used a 
-prototype version of Ceph that didn't include this 
-atomicity/durability feature. Figure 2 also shows a projection of the 
-original data to our setting. The original experiment show better 
-scalability behavior due to newer and more stable hardware.
+point where we saturate the 1GbE link[^linearity]. We note that we 
+don't see 30 MB/s of net I/O utilization since the current version of 
+Ceph issues two I/O calls on each write request, one to the 
+write-ahead log and another one to the data backend. The original 
+experiments used a prototype version of Ceph that didn't include this 
+atomicity/durability feature. Figure 3 also shows a projection of the 
+original data to our setting. The original result shows better 
+scalability behavior due to newer and more stable hard drives.
+
+[^linearity]: The experiment scales linearly up to 4 nodes. At OSD 
+number 5, the 1 GbE link begins to exhibit the effects of network 
+pressure. We empirically corroborated this by re-executing the 
+experiment with two client nodes, in which case the experiment scales 
+linearly up to 8 OSD nodes; at OSD number 9, the two links begin to be 
+pressured (approximately 140 MB/s). This data is available at the 
+repository associated to this paper (see _Section V.C_).
 
 ## Reproducing Results on Different Hardware
 
@@ -311,39 +343,49 @@ the underlying hardware and repeat the experiment easily; after all,
 this is one of the ultimate goals of virtualization, and containers 
 aim at doing it with minimal overhead. Our interest is in measuring 
 the effects that replacing distinct components has on experimental 
-results. Our conjecture is that, for many cases, the methodology 
-defined in the previous section will allow to reproduce results on 
-distinct hardware. As part of our efforts, we are working in 
-characterizing the cases for which our methodology will work and those 
-for which it won't.
+results. Our conjecture is that, for many cases, the mapping 
+methodology defined in the previous section will allow to reproduce 
+results on distinct hardware. As part of our efforts, we are working 
+in characterizing the cases for which our methodology will work and 
+those for which it won't.
+
+Thus, one of our initial goals is to empirically test the 
+repercussions of replacing storage, CPU, memory and network devices 
+(among others). We now present preliminary results on the outcome of 
+swapping distinct storage drives. We re-executed the scalability 
+experiment, swapping four old hard drives with newer models. The 
+results are shown in Figure 4.
 
 ![Showing the effect of replacing 4 hard drives with newer models. Old 
 hard drives are the same used in the previous figure and correspond to 
 a set of 10 year old 250GB Seagate Barracuda ES (ST3250620NS). New 
 hard drives correspond to 500GB Western Digital Re (WD5003ABYZ) 
-drives.](/root/figures/ceph2.png)
+drives. Every data point corresponds to the average (and standard 
+error) of 10 executions.](figures/ceph2.png)
 
-Thus, one of our initial goals is to empirically test the 
-repercussions of replacing network, CPU, storage and memory devices 
-(among others). We now present preliminary results on the outcome of 
-swapping distinct storage drives. We re-executed the scalability 
-experiment, swapping four old hard drives with newer models. The 
-results are shown in Figure 3.
+The newer hard drives have the capacity to write at ~130 MB/s but we 
+throttle I/O in order to replicate the behavior of our older drives. 
+Standard error markers show that differences for two of the data 
+points are statistically significant. Our expectation was to find 
+complete overlapping points, since at this scalability levels (1-4), 
+variance is relatively low. Additionally, the `blkio` cgroups 
+subsystem has been empirically shown to effectively isolate I/O 
+operations at low loads [@sfakianakis_vanguard_2014].
 
-The reason for the change in results with respect to the first four 
-points of Figure 2 is the following. As mentioned earlier, Ceph issues 
-two I/O calls on each write request, one of them being asynchronous. 
-The cgroups `blkio` controller responsible for limiting I/O on block 
-devices (which we configure to 30MB/s) cannot throttle asynchronous 
-I/O operations since this type of requests go to a queue that is 
-shared at the system level by all containers running in the host. We 
+After investigating further about the reason of these differences, we 
+found the following. As mentioned earlier, Ceph issues two I/O calls 
+on each write request, one of them being asynchronous. The cgroups 
+`blkio` controller responsible for limiting I/O on block devices 
+(which we configure to 30 MB/s) cannot throttle asynchronous I/O 
+operations since this type of requests go to a queue that is shared at 
+the system level by all containers running in the host. We 
 experientially corroborated this by executing a microbenchmark using 
 FIO that executed the same load (4MB files) on the two hard drives in 
 question, but using direct I/O exclusively. In this case, the 
-performance corresponds to the throttled 30 MB/s. We then executed a 
-mixed workload of both direct and async I/O requests and observed that 
-the newer hard drive performs better than the old one, with similar 
-results as those showed in Figure 3.
+performance corresponds to the throttled 30 MB/s (lines perfectly 
+overlap). We then executed a mixed workload of both direct and async 
+I/O requests and observed that the newer hard drive performs better 
+than the old one, with similar results as those showed in Figure 4.
 
 # Discussion {#discussion}
 
@@ -362,31 +404,38 @@ in a high-level what the experiment's goal is, for example:
   * CPU intensive
   * 50% of caching effects
 
-Assuming there is a central repository of experiments such as CloudLab 
-[@ricci_introducing_2014]. A scientist wanting to test new ideas in 
-systems research can look for experiments in this database by issuing 
-queries with a particular category in mind.
+Assuming there is a central repository of experiments associated with 
+infrastructures such as CloudLab [@ricci_introducing_2014]. A 
+scientist wanting to test new ideas in systems research can look for 
+experiments in this database by issuing queries with a particular 
+category in mind.
 
 ## Can All Systems Research Be Containerized? {#all}
 
-Based on previous performance evaluations of container technology 
-[@xavier_performance_2013 ; @felter_updated_2014 ; 
-@xavier_performance_2014 ; @tang_performance_2014] we can extrapolate 
+Based on previous performance evaluations of container technology, in 
+particular LXC [@xavier_performance_2013 ; @felter_updated_2014 ; 
+@xavier_performance_2014 ; @tang_performance_2014], we can extrapolate 
 the following conditions for which experimental results will likely be 
 affected by the implementation of the underlying OS-level 
 virtualization:
 
-  * Memory bandwidth is of significant importance (i.e. if 5% of 
-    performance will affect results).
+  * Memory bandwidth is of extreme importance (i.e. if 5% of 
+    performance will affect results). Some experiments show a 
+    significant overhead of the memory subsystem while handling the 
+    limits imposed to containers.
   * External storage drives can't be used, thus having the experiment 
     perform I/O operations within the filesystem namespace where the 
-    container is located.
+    container is located. For example, AUFS has been shown to incur a 
+    penalty when processes write to the container's filesystem.
   * Network address translation (NAT) is required.
-  * Distinct experiments consolidated on the same host.
-  * For an experiment, containers with conflicting roles need to be 
-    co-located in the same physical host (e.g. two database instances 
-    on the same host).
-  * Kernel version can't be frozen.
+  * Distinct experiments consolidated on the same host. Even though 
+    many containers can be co-located in the same host, isolating and 
+    accounting can affect the performance of the server host. This can 
+    be minimized by placing as few containers as possible on the same 
+    host.
+  * Kernel version can't be pinned to a particular version. Since the 
+    OS is the hypervisor, distinct kernel versions observe distinct 
+    performance characteristics.
 
 Any experiment for which any of the above applies should be carefully 
 examined since the effects of containerization can affect the results. 
@@ -400,7 +449,7 @@ well-suited to be reproducible via containers vs. those that are not.
 We list some of the lessons that we have learned as part of our 
 experience in implementing experiments in containers:
 
-  * Version control the experiment's code and its dependencies, 
+  * Version-control the experiment's code and its dependencies, 
     leveraging git subtrees/submodules (or alike) to keep track of 
     inter-dependencies between projects. For example, if a git 
     repository contains the definition of a Dockerfile, make it a 
@@ -408,7 +457,7 @@ experience in implementing experiments in containers:
   * Refer to the specific version ID that a paper's results were 
     obtained from. Git's tagging feature can also be used to point to 
     the version that contains the codebase for an experiment (e.g. 
-    "sosp14").
+    "`osdi_14`").
   * When possible, add experimental results as part of the commit that 
     contains the codebase of an experiment. In other words, try to 
     make the experiment as self-contained as possible, so that 
@@ -417,8 +466,9 @@ experience in implementing experiments in containers:
   * Keep a downloadable container image for the version of the 
     experiment codebase (e.g. use the docker registry and its 
     automated build feature).
-  * Whenever possible, use CI technologies to ensure that changes to 
-    the codebase don't disrupt the reproducibility of the experiment.
+  * Whenever possible, use continuous integration (CI) technologies to 
+    ensure that changes to the codebase don't disrupt the 
+    reproducibility of the experiment.
   * Obtain a profile of the hardware used (eg. making use of tools 
     such as [SoSReport]), as well as the resource configuration of 
     every container and publish these as part of the experimental 
@@ -432,11 +482,12 @@ to generate its content can be found in our github
 # Related Work {#related}
 
 The challenging task of evaluating experimental results in applied 
-computer science has been long recognized 
-[@ignizio_establishment_1971]. This issue has recently received a 
-significant amount of attention from the computational research 
-community [@freire_computational_2012 ; @neylon_changing_2012 ; 
-@leveqije_reproducible_2012], where the focus is more on numerical 
+computer science has been long recognized [@ignizio_establishment_1971 
+; @ignizio_validating_1973 ; @crowder_reporting_1979]. This issue has 
+recently received a significant amount of attention from the 
+computational research community [@freire_computational_2012 ; 
+@neylon_changing_2012 ; @leveqije_reproducible_2012 ; 
+@stodden_implementing_2014], where the focus is more on numerical 
 reproducibility rather than performance evaluation. Similarly, efforts 
 such as _The Recomputation Manifesto_ [@gent_recomputation_2013] and 
 the _Software Sustainability Institute_ [@crouch_software_2013] have 
@@ -447,7 +498,7 @@ primary issue. By obtaining profiles of executions and making them
 part of the results, we allow researchers to validate experiments with 
 performance in mind.
 
-In [@collberg_measuring_2014], the authors took 613 articles published 
+In [@collberg_measuring_2014] the authors took 613 articles published 
 in 13 top-tier systems research conferences and found that 25% of the 
 articles are reproducible (under their reproducibility criteria). The 
 authors did not analyze performance. In our case, we are interested 
